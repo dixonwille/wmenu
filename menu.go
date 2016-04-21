@@ -1,6 +1,7 @@
 package wmenu
 
-//TODO add wlog features to this
+//TODO add wlog color features to this
+//TODO have a way to clear screen on new menu or not
 import (
 	"bufio"
 	"fmt"
