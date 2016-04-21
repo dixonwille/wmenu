@@ -165,9 +165,7 @@ func (m *Menu) ask() ([]Option, error) {
 	if res == "" {
 		//get default options
 		opt := m.getDefault()
-		//make sure that there is an action available to be called in certain cases
-		isErr := ((len(opt) == 0 && m.defaultFunction == nil) || (len(opt) == 1 && opt[0].function == nil && m.defaultFunction == nil) || (len(opt) > 0 && m.multiFunction == nil))
-		if isErr {
+		if m.checkOptAndFunc(opt) {
 			return nil, newMenuError(ErrNoResponse, "")
 		}
 		return nil, nil
@@ -232,4 +230,9 @@ func (m *Menu) getDefault() []Option {
 		}
 	}
 	return opt
+}
+
+//make sure that there is an action available to be called in certain cases
+func (m *Menu) checkOptAndFunc(opt []Option) bool {
+	return ((len(opt) == 0 && m.defaultFunction == nil) || (len(opt) == 1 && opt[0].function == nil && m.defaultFunction == nil) || (len(opt) > 0 && m.multiFunction == nil))
 }
