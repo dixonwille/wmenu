@@ -8,7 +8,6 @@ package wmenu
 //DOING:10 add options to change where wlog writes to
 //DOING:0 add test/examples
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -55,8 +54,8 @@ func NewMenu(question string) *Menu {
 //questionColor changes the color of the questions.
 //errorColor changes the color of the question.
 //Use wlog.None if you do not want to change the color.
-func (m *Menu) AddColor(optionColor, questionColor, errorColor wlog.Color) {
-	m.ui = wlog.AddColor(wlog.None, optionColor, wlog.None, questionColor, errorColor, wlog.None, wlog.None, m.ui)
+func (m *Menu) AddColor(optionColor, questionColor, responseColor, errorColor wlog.Color) {
+	m.ui = wlog.AddColor(questionColor, errorColor, wlog.None, wlog.None, optionColor, responseColor, wlog.None, wlog.None, wlog.None, m.ui)
 }
 
 //ClearOnMenuRun will clear the screen when a menu is ran.
@@ -125,9 +124,9 @@ func (m *Menu) Run() error {
 	//If it is Clear the screen and write error.
 	//Then ask again
 	for !valid {
-		//step 1 print things to screen
+		//step 1 print options to screen
 		m.print()
-		//step 2 get and validate response
+		//step 2 ask question, get and validate response
 		opt, err := m.ask()
 		if err != nil {
 			if m.loopOnInvalid {
@@ -183,15 +182,13 @@ func (m *Menu) print() {
 	for _, opt := range m.options {
 		m.ui.Output(fmt.Sprintf("%d) %s", opt.ID, opt.Text))
 	}
-	m.ui.Info(m.question)
 }
 
 func (m *Menu) ask() ([]Option, error) {
-	reader := bufio.NewReader(os.Stdin)
-	res, _ := reader.ReadString('\n')
-	res = strings.Replace(res, "\r", "", -1) //this will only be useful under windows
-	res = strings.Replace(res, "\n", "", -1)
-
+	res, err := m.ui.Ask(m.question)
+	if err != nil {
+		return nil, err
+	}
 	//Validate responses
 	//Check if no responses are returned and no action to call
 	if res == "" {
@@ -254,6 +251,7 @@ func exist(slice []int, number int) bool {
 	return false
 }
 
+//gets a list of default options
 func (m *Menu) getDefault() []Option {
 	var opt []Option
 	for _, o := range m.options {
