@@ -2,6 +2,7 @@
 //It uses wlog for it's interface with the command line.
 //It uses os.Stdin, os.Stdout, and os.Stderr with concurrency by default.
 //wmenu allows you to change the color of the different parts of the menu.
+//This package also creates it's own error structure so you can type assert if you need to.
 package wmenu
 
 //TODO add options to change where wlog writes to
