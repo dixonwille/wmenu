@@ -119,7 +119,7 @@ func (m *Menu) Run() error {
 		switch len(opt) {
 		//if there are no default options call the defaultFunction of the menu
 		case 0:
-			m.defaultFunction(Option{id: -1})
+			m.defaultFunction(Option{ID: -1})
 			//if there is one default option call it's function if it exist
 			//if it does not, call the menu's defaultFunction
 		case 1:
@@ -149,7 +149,7 @@ func (m *Menu) Run() error {
 
 func (m *Menu) print() {
 	for _, opt := range m.options {
-		m.ui.Output(fmt.Sprintf("%d) %s", opt.id, opt.text))
+		m.ui.Output(fmt.Sprintf("%d) %s", opt.ID, opt.Text))
 	}
 	m.ui.Info(m.question)
 }
