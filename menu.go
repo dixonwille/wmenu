@@ -77,7 +77,7 @@ func (m *Menu) Action(function func(Option)) {
 	m.defaultFunction = function
 }
 
-//MultipleAction is called when mulitple options are selected.
+//MultipleAction is called when multiple options are selected.
 func (m *Menu) MultipleAction(function func([]Option)) {
 	m.multiFunction = function
 }
