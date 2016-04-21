@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/dixonwille/wlog"
 	"github.com/dixonwille/wmenu"
 )
 
@@ -39,6 +40,7 @@ func option1() {
 func option2() {
 	menu := wmenu.NewMenu("This is option 2's menu")
 	menu.LoopOnInvalid()
+	menu.AddColor(wlog.BrightGreen, wlog.BrightMagenta, wlog.BrightRed)
 	menu.Action(func(opt wmenu.Option) { spew.Dump(opt) })
 	menu.Option("2.1", false, nil)
 	menu.Option("2.2", true, nil)

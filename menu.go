@@ -21,6 +21,7 @@ type Menu struct {
 	multiSeperator  string
 	multiFunction   func([]Option)
 	loopOnInvalid   bool
+	clear           bool
 }
 
 //NewMenu creates a menu to use
@@ -38,7 +39,22 @@ func NewMenu(question string) *Menu {
 		multiSeperator:  " ",
 		multiFunction:   nil,
 		loopOnInvalid:   false,
+		clear:           false,
 	}
+}
+
+//AddColor will change the color of the menu items.
+//optionColor changes the color of the options.
+//questionColor changes the color of the questions.
+//errorColor changes the color of the question.
+//Use wlog.None if you do not want to change the color.
+func (m *Menu) AddColor(optionColor, questionColor, errorColor wlog.Color) {
+	m.ui = wlog.AddColor(wlog.None, optionColor, wlog.None, questionColor, errorColor, wlog.None, wlog.None, m.ui)
+}
+
+//ClearOnMenuRun will clear the screen when a menu is ran.
+func (m *Menu) ClearOnMenuRun() {
+	m.clear = true
 }
 
 //SetSeperator sets the seperator to use for multi select.
@@ -70,7 +86,9 @@ func (m *Menu) MultipleAction(function func([]Option)) {
 
 //Run is used to execute the menu (print to screen and ask quesiton)
 func (m *Menu) Run() error {
-	Clear()
+	if m.clear {
+		Clear()
+	}
 	valid := false
 	var options []Option
 	//Loop and on error check if loopOnInvalid is enabled.
@@ -83,7 +101,9 @@ func (m *Menu) Run() error {
 		opt, err := m.ask()
 		if err != nil {
 			if m.loopOnInvalid {
-				Clear()
+				if m.clear {
+					Clear()
+				}
 				m.ui.Error(err.Error())
 			} else {
 				return err
