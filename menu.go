@@ -1,5 +1,10 @@
+//Package wmenu creates menus for cli programs.
+//It uses wlog for it's interface with the command line.
+//It uses os.Stdin, os.Stdout, and os.Stderr with concurrency by default.
+//wmenu allows you to change the color of the different parts of the menu.
 package wmenu
 
+//TODO add options to change where wlog writes to
 import (
 	"bufio"
 	"fmt"
