@@ -1,13 +1,14 @@
-# wmenu [![Go Report Card](https://goreportcard.com/badge/github.com/dixonwille/wmenu)](https://goreportcard.com/report/github.com/dixonwille/wmenu) [![GoDoc](https://godoc.org/github.com/dixonwille/wmenu?status.svg)](https://godoc.org/github.com/dixonwille/wmenu)
+# WMenu [![Go Report Card](https://goreportcard.com/badge/github.com/dixonwille/wmenu)](https://goreportcard.com/report/github.com/dixonwille/wmenu) [![GoDoc](https://godoc.org/github.com/dixonwille/wmenu?status.svg)](https://godoc.org/github.com/dixonwille/wmenu)
 ---
-
-    import "github.com/dixonwille/wmenu"
 
 Package wmenu creates menus for cli programs. It uses wlog for it's interface
 with the command line. It uses os.Stdin, os.Stdout, and os.Stderr with
 concurrency by default. wmenu allows you to change the color of the different
 parts of the menu. This package also creates it's own error structure so you can
 type assert if you need to.
+
+## Import
+    import "github.com/dixonwille/wmenu"
 
 ## Usage
 
@@ -38,6 +39,7 @@ Clear simply clears the command line interface.
 
 ```go
 type Menu struct {
+  // contains filtered or unexported fields
 }
 ```
 
