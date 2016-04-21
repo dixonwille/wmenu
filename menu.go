@@ -5,11 +5,12 @@
 //This package also creates it's own error structure so you can type assert if you need to.
 package wmenu
 
-//TODO:0 add options to change where wlog writes to
+//DOING:10 add options to change where wlog writes to
 //DOING:0 add test/examples
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -98,6 +99,15 @@ func (m *Menu) Action(function func(Option)) {
 //If this is not set then it is implied that the menu only allows for one option to be selected.
 func (m *Menu) MultipleAction(function func([]Option)) {
 	m.multiFunction = function
+}
+
+//ChangeReaderWriter changes where the menu listens and writes to.
+//reader is where user input is collected.
+//writer and errorWriter is where the menu should write to.
+func (m *Menu) ChangeReaderWriter(reader io.Reader, writer, errorWriter io.Writer) {
+	var ui wlog.UI
+	ui = wlog.New(reader, writer, errorWriter)
+	m.ui = ui
 }
 
 //Run is used to execute the menu.
