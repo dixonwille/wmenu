@@ -1,6 +1,7 @@
 package wmenu
 
-//Option are the options that are used inside the menus
+//Option is what Menu uses to display options to screen.
+//Also holds information on what should run and if it is a default option
 type Option struct {
 	ID        int
 	Text      string

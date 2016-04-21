@@ -10,7 +10,8 @@ import (
 	"github.com/dixonwille/wlog"
 )
 
-//Menu is the structure for all menus created
+//Menu is used to display options to a user.
+//A user can then select options and Menu will validate the response and perform the correct action.
 type Menu struct {
 	question        string
 	defaultFunction func(Option)
@@ -22,7 +23,7 @@ type Menu struct {
 	clear           bool
 }
 
-//NewMenu creates a menu to use
+//NewMenu creates a menu with a wlog.UI as the writer.
 func NewMenu(question string) *Menu {
 	//Create a default ui to use for menu
 	var ui wlog.UI
@@ -51,38 +52,52 @@ func (m *Menu) AddColor(optionColor, questionColor, errorColor wlog.Color) {
 }
 
 //ClearOnMenuRun will clear the screen when a menu is ran.
+//This is checked when LoopOnInvalid is activated.
+//Meaning if an error occured then it will clear the screen before asking again.
 func (m *Menu) ClearOnMenuRun() {
 	m.clear = true
 }
 
-//SetSeperator sets the seperator to use for multi select.
+//SetSeperator sets the seperator to use when multiple options are valid responses.
 //Default value is a space.
 func (m *Menu) SetSeperator(sep string) {
 	m.multiSeperator = sep
 }
 
-//LoopOnInvalid is used if an invalid option was given then clear the screen and ask again
+//LoopOnInvalid is used if an invalid option was given then it will prompt the user again.
 func (m *Menu) LoopOnInvalid() {
 	m.loopOnInvalid = true
 }
 
-//Option adds options to the menu
+//Option adds an option to the menu for the user to select from.
+//title is the string the user will select
+//isDefault is whether this option is a default option (IE when no options are selected).
+//function is what is called when only this option is selected.
+//If function is nil then it will default to the menu's Action.
 func (m *Menu) Option(title string, isDefault bool, function func()) {
 	option := newOption(len(m.options), title, isDefault, function)
 	m.options = append(m.options, *option)
 }
 
-//Action adds a default action if an option does not have an action or no option set as default.
+//Action adds a default action to use in certain scenarios.
+//If the selected option (by default or user selected) does not have a function applied to it this will be called.
+//If there are no default options and no option was selected this will be called with an option that has an ID of -1.
 func (m *Menu) Action(function func(Option)) {
 	m.defaultFunction = function
 }
 
-//MultipleAction is called when multiple options are selected.
+//MultipleAction is called when multiple options are selected (by default or user selected).
+//If this is set then it uses the seperator string specified by SetSeperator (Default is a space) to seperate the responses.
+//If this is not set then it is implied that the menu only allows for one option to be selected.
 func (m *Menu) MultipleAction(function func([]Option)) {
 	m.multiFunction = function
 }
 
-//Run is used to execute the menu (print to screen and ask quesiton)
+//Run is used to execute the menu.
+//It will print to options and question to the screen.
+//It will only clear the screen if ClearOnMenuRun is activated.
+//This will validate all responses.
+//Errors are of type MenuError.
 func (m *Menu) Run() error {
 	if m.clear {
 		Clear()

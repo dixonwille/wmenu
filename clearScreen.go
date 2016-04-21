@@ -27,7 +27,7 @@ func init() {
 	}
 }
 
-//Clear clears the screen
+//Clear simply clears the command line interface.
 func Clear() {
 	value, ok := clear[runtime.GOOS]
 	if ok {
