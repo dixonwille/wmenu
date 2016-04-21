@@ -1,5 +1,4 @@
-# WMenu [![Go Report Card](https://goreportcard.com/badge/github.com/dixonwille/wmenu)](https://goreportcard.com/report/github.com/dixonwille/wmenu) [![GoDoc](https://godoc.org/github.com/dixonwille/wmenu?status.svg)](https://godoc.org/github.com/dixonwille/wmenu)
----
+# WMenu [![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=master)](https://travis-ci.org/dixonwille/wmenu) [![Go Report Card](https://goreportcard.com/badge/github.com/dixonwille/wmenu)](https://goreportcard.com/report/github.com/dixonwille/wmenu) [![GoDoc](https://godoc.org/github.com/dixonwille/wmenu?status.svg)](https://godoc.org/github.com/dixonwille/wmenu)
 
 Package wmenu creates menus for cli programs. It uses wlog for it's interface
 with the command line. It uses os.Stdin, os.Stdout, and os.Stderr with
@@ -9,6 +8,289 @@ type assert if you need to.
 
 ## Import
     import "github.com/dixonwille/wmenu"
+
+## Examples
+
+### Error Duplicate
+
+Code:
+
+``` go
+reader := strings.NewReader("1 1\r\n") //Simulates the user hitting the [enter] key
+optFunc := func() {
+    fmt.Println("Option 0 was chosen.")
+}
+multiFunc := func(opts []Option) {
+    for _, opt := range opts {
+        fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+    }
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.MultipleAction(multiFunc)
+menu.Option("Option 0", false, optFunc)
+menu.Option("Option 1", false, nil)
+menu.Option("Option 2", false, nil)
+err := menu.Run()
+if err != nil {
+    if IsDuplicateErr(err) {
+        fmt.Println("We caught the err: " + err.Error())
+    } else {
+        log.Fatal(err)
+    }
+}
+```
+
+Output:
+
+```
+0) Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+We caught the err: Duplicated response: 1
+```
+
+### Error Invalid
+
+Code:
+
+``` go
+reader := strings.NewReader("3\r\n") //Simulates the user hitting the [enter] key
+optFunc := func() {
+    fmt.Println("Option 0 was chosen.")
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.Option("Option 0", false, optFunc)
+menu.Option("Option 1", false, nil)
+menu.Option("Option 2", false, nil)
+err := menu.Run()
+if err != nil {
+    if IsInvalidErr(err) {
+        fmt.Println("We caught the err: " + err.Error())
+    } else {
+        log.Fatal(err)
+    }
+}
+```
+
+Output:
+
+```
+0) Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+We caught the err: Invalid response: 3
+```
+
+### Error No Response
+
+Code:
+
+``` go
+reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
+optFunc := func() {
+    fmt.Println("Option 0 was chosen.")
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.Option("Option 0", false, optFunc)
+menu.Option("Option 1", false, nil)
+menu.Option("Option 2", false, nil)
+err := menu.Run()
+if err != nil {
+    if IsNoResponseErr(err) {
+        fmt.Println("We caught the err: " + err.Error())
+    } else {
+        log.Fatal(err)
+    }
+}
+```
+
+Output:
+
+```
+0) Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+We caught the err: No response
+```
+
+### Error Too Many
+
+Code:
+
+``` go
+reader := strings.NewReader("1 2\r\n") //Simulates the user hitting the [enter] key
+optFunc := func() {
+    fmt.Println("Option 0 was chosen.")
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.Option("Option 0", false, optFunc)
+menu.Option("Option 1", false, nil)
+menu.Option("Option 2", false, nil)
+err := menu.Run()
+if err != nil {
+    if IsTooManyErr(err) {
+        fmt.Println("We caught the err: " + err.Error())
+    } else {
+        log.Fatal(err)
+    }
+}
+```
+
+Output:
+
+```
+0) Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+We caught the err: Too many responses
+```
+
+### Multiple
+
+Code:
+
+``` go
+reader := strings.NewReader("1,2\r\n") //Simulates the user typing "1,2" and hitting the [enter] key
+optFunc := func() {
+    fmt.Println("Option 0 was chosen.")
+}
+multiFunc := func(opts []Option) {
+    for _, opt := range opts {
+        fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+    }
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.MultipleAction(multiFunc)
+menu.SetSeperator(",")
+menu.Option("Option 0", true, optFunc)
+menu.Option("Option 1", false, nil)
+menu.Option("Option 2", true, nil)
+err := menu.Run()
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+Output:
+
+```
+0) Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+Option 1 has an id of 1.
+Option 2 has an id of 2.
+```
+
+### Multiple With Defaults
+
+Code:
+
+``` go
+reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
+optFunc := func() {
+    fmt.Println("Option 0 was chosen.")
+}
+multiFunc := func(opts []Option) {
+    for _, opt := range opts {
+        fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+    }
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.MultipleAction(multiFunc)
+menu.Option("Option 0", true, optFunc)
+menu.Option("Option 1", false, nil)
+menu.Option("Option 2", true, nil)
+err := menu.Run()
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+Output:
+
+```
+0) Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+Option 0 has an id of 0.
+Option 2 has an id of 2.
+```
+
+### Simple
+
+Code:
+
+``` go
+reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
+optFunc := func() {
+    fmt.Println("Option 0 was chosen.")
+}
+actFunc := func(opt Option) {
+    fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.Action(actFunc)
+menu.Option("Option 0", true, optFunc)
+menu.Option("Option 1", false, nil)
+menu.Option("Option 2", true, nil)
+err := menu.Run()
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+Output:
+
+```
+0) Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+Option 1 has an id of 1.
+```
+
+### Simple With Default
+
+Code:
+
+``` go
+reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
+optFunc := func() {
+    fmt.Fprint(os.Stdout, "Option 0 was chosen.")
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.Option("Option 0", true, optFunc)
+menu.Option("Option 1", false, nil)
+menu.Option("Option 2", false, nil)
+err := menu.Run()
+if err != nil {
+    log.Fatal(err)
+}
+```
+
+Output:
+
+```
+0) Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+Option 0 was chosen.
+```
 
 ## Usage
 
@@ -35,11 +317,39 @@ func Clear()
 ```
 Clear simply clears the command line interface.
 
+#### func  IsDuplicateErr
+
+```go
+func IsDuplicateErr(err error) bool
+```
+IsDuplicateErr checks to see if err is of type duplicate returned by menu.
+
+#### func  IsInvalidErr
+
+```go
+func IsInvalidErr(err error) bool
+```
+IsInvalidErr checks to see if err is of type invalid error returned by menu.
+
+#### func  IsNoResponseErr
+
+```go
+func IsNoResponseErr(err error) bool
+```
+IsNoResponseErr checks to see if err is of type no response returned by menu.
+
+#### func  IsTooManyErr
+
+```go
+func IsTooManyErr(err error) bool
+```
+IsTooManyErr checks to see if err is of type too many returned by menu.
+
 #### type Menu
 
 ```go
 type Menu struct {
-  // contains filtered or unexported fields
+	// contains filtered or unexported fields
 }
 ```
 
@@ -66,12 +376,21 @@ be called with an option that has an ID of -1.
 #### func (*Menu) AddColor
 
 ```go
-func (m *Menu) AddColor(optionColor, questionColor, errorColor wlog.Color)
+func (m *Menu) AddColor(optionColor, questionColor, responseColor, errorColor wlog.Color)
 ```
 AddColor will change the color of the menu items. optionColor changes the color
 of the options. questionColor changes the color of the questions. errorColor
 changes the color of the question. Use wlog.None if you do not want to change
 the color.
+
+#### func (*Menu) ChangeReaderWriter
+
+```go
+func (m *Menu) ChangeReaderWriter(reader io.Reader, writer, errorWriter io.Writer)
+```
+ChangeReaderWriter changes where the menu listens and writes to. reader is where
+user input is collected. writer and errorWriter is where the menu should write
+to.
 
 #### func (*Menu) ClearOnMenuRun
 
@@ -79,7 +398,7 @@ the color.
 func (m *Menu) ClearOnMenuRun()
 ```
 ClearOnMenuRun will clear the screen when a menu is ran. This is checked when
-LoopOnInvalid is activated. Meaning if an error occured then it will clear the
+LoopOnInvalid is activated. Meaning if an error occurred then it will clear the
 screen before asking again.
 
 #### func (*Menu) LoopOnInvalid
@@ -96,8 +415,8 @@ user again.
 func (m *Menu) MultipleAction(function func([]Option))
 ```
 MultipleAction is called when multiple options are selected (by default or user
-selected). If this is set then it uses the seperator string specified by
-SetSeperator (Default is a space) to seperate the responses. If this is not set
+selected). If this is set then it uses the separator string specified by
+SetSeparator (Default is a space) to separate the responses. If this is not set
 then it is implied that the menu only allows for one option to be selected.
 
 #### func (*Menu) Option
@@ -120,12 +439,12 @@ Run is used to execute the menu. It will print to options and question to the
 screen. It will only clear the screen if ClearOnMenuRun is activated. This will
 validate all responses. Errors are of type MenuError.
 
-#### func (*Menu) SetSeperator
+#### func (*Menu) SetSeparator
 
 ```go
-func (m *Menu) SetSeperator(sep string)
+func (m *Menu) SetSeparator(sep string)
 ```
-SetSeperator sets the seperator to use when multiple options are valid
+SetSeparator sets the separator to use when multiple options are valid
 responses. Default value is a space.
 
 #### type MenuError
@@ -152,6 +471,7 @@ Error prints the error in an easy to read string.
 type Option struct {
 	ID   int
 	Text string
+	// contains filtered or unexported fields
 }
 ```
 

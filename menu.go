@@ -24,7 +24,7 @@ type Menu struct {
 	defaultFunction func(Option)
 	options         []Option
 	ui              wlog.UI
-	multiSeperator  string
+	multiseparator  string
 	multiFunction   func([]Option)
 	loopOnInvalid   bool
 	clear           bool
@@ -42,7 +42,7 @@ func NewMenu(question string) *Menu {
 		defaultFunction: nil,
 		options:         nil,
 		ui:              ui,
-		multiSeperator:  " ",
+		multiseparator:  " ",
 		multiFunction:   nil,
 		loopOnInvalid:   false,
 		clear:           false,
@@ -60,15 +60,15 @@ func (m *Menu) AddColor(optionColor, questionColor, responseColor, errorColor wl
 
 //ClearOnMenuRun will clear the screen when a menu is ran.
 //This is checked when LoopOnInvalid is activated.
-//Meaning if an error occured then it will clear the screen before asking again.
+//Meaning if an error occurred then it will clear the screen before asking again.
 func (m *Menu) ClearOnMenuRun() {
 	m.clear = true
 }
 
-//SetSeperator sets the seperator to use when multiple options are valid responses.
+//SetSeparator sets the separator to use when multiple options are valid responses.
 //Default value is a space.
-func (m *Menu) SetSeperator(sep string) {
-	m.multiSeperator = sep
+func (m *Menu) SetSeparator(sep string) {
+	m.multiseparator = sep
 }
 
 //LoopOnInvalid is used if an invalid option was given then it will prompt the user again.
@@ -94,7 +94,7 @@ func (m *Menu) Action(function func(Option)) {
 }
 
 //MultipleAction is called when multiple options are selected (by default or user selected).
-//If this is set then it uses the seperator string specified by SetSeperator (Default is a space) to seperate the responses.
+//If this is set then it uses the separator string specified by SetSeparator (Default is a space) to separate the responses.
 //If this is not set then it is implied that the menu only allows for one option to be selected.
 func (m *Menu) MultipleAction(function func([]Option)) {
 	m.multiFunction = function
@@ -200,7 +200,7 @@ func (m *Menu) ask() ([]Option, error) {
 		return nil, nil
 	}
 
-	resStrings := strings.Split(res, m.multiSeperator) //split responses by spaces
+	resStrings := strings.Split(res, m.multiseparator) //split responses by spaces
 	//Check if we don't want multiple responses
 	if m.multiFunction == nil && len(resStrings) > 1 {
 		return nil, newMenuError(ErrTooMany, "")
