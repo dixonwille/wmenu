@@ -36,3 +36,39 @@ func newMenuError(err error, res string) *MenuError {
 		Res: res,
 	}
 }
+
+//IsInvalidErr checks to see if err is of type invalid error returned by menu.
+func IsInvalidErr(err error) bool {
+	e, ok := err.(*MenuError)
+	if ok && e.Err == ErrInvalid {
+		return true
+	}
+	return false
+}
+
+//IsNoResponseErr checks to see if err is of type no response returned by menu.
+func IsNoResponseErr(err error) bool {
+	e, ok := err.(*MenuError)
+	if ok && e.Err == ErrNoResponse {
+		return true
+	}
+	return false
+}
+
+//IsTooManyErr checks to see if err is of type too many returned by menu.
+func IsTooManyErr(err error) bool {
+	e, ok := err.(*MenuError)
+	if ok && e.Err == ErrTooMany {
+		return true
+	}
+	return false
+}
+
+//IsDuplicateErr checks to see if err is of type duplicate returned by menu.
+func IsDuplicateErr(err error) bool {
+	e, ok := err.(*MenuError)
+	if ok && e.Err == ErrDuplicate {
+		return true
+	}
+	return false
+}

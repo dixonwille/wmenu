@@ -264,5 +264,5 @@ func (m *Menu) getDefault() []Option {
 
 //make sure that there is an action available to be called in certain cases
 func (m *Menu) checkOptAndFunc(opt []Option) bool {
-	return ((len(opt) == 0 && m.defaultFunction == nil) || (len(opt) == 1 && opt[0].function == nil && m.defaultFunction == nil) || (len(opt) > 0 && m.multiFunction == nil))
+	return ((len(opt) == 0 && m.defaultFunction == nil) || (len(opt) == 1 && opt[0].function == nil && m.defaultFunction == nil) || (len(opt) > 1 && m.multiFunction == nil))
 }
