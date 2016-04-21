@@ -5,7 +5,8 @@
 //This package also creates it's own error structure so you can type assert if you need to.
 package wmenu
 
-//TODO add options to change where wlog writes to
+//TODO:0 add options to change where wlog writes to
+//DOING:0 add test/examples
 import (
 	"bufio"
 	"fmt"
