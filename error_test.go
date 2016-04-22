@@ -8,11 +8,12 @@ import (
 )
 
 var (
-	testInvalid    = newMenuError(ErrInvalid, "1")
-	testDuplicate  = newMenuError(ErrDuplicate, "2")
-	testTooMany    = newMenuError(ErrTooMany, "")
-	testNoResponse = newMenuError(ErrNoResponse, "")
+	testInvalid    = newMenuError(ErrInvalid, "1", 0)
+	testDuplicate  = newMenuError(ErrDuplicate, "2", 0)
+	testTooMany    = newMenuError(ErrTooMany, "", 0)
+	testNoResponse = newMenuError(ErrNoResponse, "", 0)
 	errNormal      = errors.New("Opps")
+	errMenu        = newMenuError(errors.New("General"), "", 0)
 )
 
 func TestIsInvalidErr(t *testing.T) {
@@ -41,4 +42,15 @@ func TestIsNoResponseErr(t *testing.T) {
 	assert.True(IsNoResponseErr(testNoResponse))
 	assert.False(IsNoResponseErr(testDuplicate))
 	assert.False(IsNoResponseErr(errNormal))
+}
+
+func TestIsMenuError(t *testing.T) {
+	assert := assert.New(t)
+	assert.True(IsMenuErr(testNoResponse))
+	assert.True(IsMenuErr(testDuplicate))
+	assert.True(IsMenuErr(testInvalid))
+	assert.True(IsMenuErr(testTooMany))
+	assert.True(IsMenuErr(testNoResponse))
+	assert.True(IsMenuErr(errMenu))
+	assert.False(IsMenuErr(errNormal))
 }

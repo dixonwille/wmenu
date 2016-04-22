@@ -18,8 +18,9 @@ var (
 
 //MenuError records menu errors
 type MenuError struct {
-	Err error
-	Res string
+	Err       error
+	Res       string
+	TriesLeft int
 }
 
 //Error prints the error in an easy to read string.
@@ -30,10 +31,11 @@ func (e *MenuError) Error() string {
 	return e.Err.Error()
 }
 
-func newMenuError(err error, res string) *MenuError {
+func newMenuError(err error, res string, tries int) *MenuError {
 	return &MenuError{
-		Err: err,
-		Res: res,
+		Err:       err,
+		Res:       res,
+		TriesLeft: tries,
 	}
 }
 
@@ -68,6 +70,16 @@ func IsTooManyErr(err error) bool {
 func IsDuplicateErr(err error) bool {
 	e, ok := err.(*MenuError)
 	if ok && e.Err == ErrDuplicate {
+		return true
+	}
+	return false
+}
+
+//IsMenuErr checks to see if it is a menu err.
+//This is a general check not a specific one.
+func IsMenuErr(err error) bool {
+	_, ok := err.(*MenuError)
+	if ok {
 		return true
 	}
 	return false

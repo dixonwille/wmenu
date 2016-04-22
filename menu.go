@@ -5,8 +5,6 @@
 //This package also creates it's own error structure so you can type assert if you need to.
 package wmenu
 
-//DOING:10 add options to change where wlog writes to
-//DOING:0 add test/examples
 import (
 	"fmt"
 	"io"
@@ -28,6 +26,7 @@ type Menu struct {
 	multiFunction   func([]Option)
 	loopOnInvalid   bool
 	clear           bool
+	tries           int
 }
 
 //NewMenu creates a menu with a wlog.UI as the writer.
@@ -46,6 +45,7 @@ func NewMenu(question string) *Menu {
 		multiFunction:   nil,
 		loopOnInvalid:   false,
 		clear:           false,
+		tries:           3,
 	}
 }
 
@@ -69,6 +69,13 @@ func (m *Menu) ClearOnMenuRun() {
 //Default value is a space.
 func (m *Menu) SetSeparator(sep string) {
 	m.multiSeparator = sep
+}
+
+//SetTries sets the number of tries on the loop before failing out.
+//Default is 3.
+//Negative values act like 0.
+func (m *Menu) SetTries(i int) {
+	m.tries = i
 }
 
 //LoopOnInvalid is used if an invalid option was given then it will prompt the user again.
@@ -129,12 +136,16 @@ func (m *Menu) Run() error {
 		//step 2 ask question, get and validate response
 		opt, err := m.ask()
 		if err != nil {
-			if m.loopOnInvalid {
+			if m.loopOnInvalid && m.tries > 0 {
 				if m.clear {
 					Clear()
 				}
+				m.tries = m.tries - 1
 				m.ui.Error(err.Error())
 			} else {
+				if !IsMenuErr(err) {
+					return newMenuError(err, "", m.triesLeft())
+				}
 				return err
 			}
 		} else {
@@ -195,7 +206,7 @@ func (m *Menu) ask() ([]Option, error) {
 		//get default options
 		opt := m.getDefault()
 		if m.checkOptAndFunc(opt) {
-			return nil, newMenuError(ErrNoResponse, "")
+			return nil, newMenuError(ErrNoResponse, "", m.triesLeft())
 		}
 		return nil, nil
 	}
@@ -203,7 +214,7 @@ func (m *Menu) ask() ([]Option, error) {
 	resStrings := strings.Split(res, m.multiSeparator) //split responses by spaces
 	//Check if we don't want multiple responses
 	if m.multiFunction == nil && len(resStrings) > 1 {
-		return nil, newMenuError(ErrTooMany, "")
+		return nil, newMenuError(ErrTooMany, "", m.triesLeft())
 	}
 
 	//Convert responses to intigers
@@ -212,7 +223,7 @@ func (m *Menu) ask() ([]Option, error) {
 		//Check if it is an intiger
 		r, err := strconv.Atoi(response)
 		if err != nil {
-			return nil, newMenuError(ErrInvalid, response)
+			return nil, newMenuError(ErrInvalid, response, m.triesLeft())
 		}
 		responses = append(responses, r)
 	}
@@ -222,11 +233,11 @@ func (m *Menu) ask() ([]Option, error) {
 	var tmp []int
 	for _, response := range responses {
 		if response < 0 || len(m.options)-1 < response {
-			return nil, newMenuError(ErrInvalid, strconv.Itoa(response))
+			return nil, newMenuError(ErrInvalid, strconv.Itoa(response), m.triesLeft())
 		}
 
 		if exist(tmp, response) {
-			return nil, newMenuError(ErrDuplicate, strconv.Itoa(response))
+			return nil, newMenuError(ErrDuplicate, strconv.Itoa(response), m.triesLeft())
 		}
 
 		tmp = append(tmp, response)
@@ -265,4 +276,11 @@ func (m *Menu) getDefault() []Option {
 //make sure that there is an action available to be called in certain cases
 func (m *Menu) checkOptAndFunc(opt []Option) bool {
 	return ((len(opt) == 0 && m.defaultFunction == nil) || (len(opt) == 1 && opt[0].function == nil && m.defaultFunction == nil) || (len(opt) > 1 && m.multiFunction == nil))
+}
+
+func (m *Menu) triesLeft() int {
+	if m.loopOnInvalid && m.tries > 0 {
+		return m.tries
+	}
+	return 0
 }

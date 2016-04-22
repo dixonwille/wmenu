@@ -1,6 +1,7 @@
 package wmenu
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -14,6 +15,7 @@ import (
 
 var newMenuCases = []string{"Testing this menu.", "", "!@#$%^&*()"}
 var setSeperatorCases = []string{"", ".", ",", "~"}
+var setTriesCases = []int{0, -4, 5, 500}
 var optionCases = []struct {
 	name     string
 	def      bool
@@ -273,6 +275,7 @@ func TestNewMenu(t *testing.T) {
 		assert.False(menu.loopOnInvalid)
 		assert.False(menu.clear)
 		assert.NotNil(menu.ui)
+		assert.Equal(3, menu.tries)
 	}
 }
 
@@ -287,6 +290,14 @@ func TestSetSeperator(t *testing.T) {
 	for _, c := range setSeperatorCases {
 		menu.SetSeparator(c)
 		assert.Equal(t, c, menu.multiSeparator)
+	}
+}
+
+func TestSetTries(t *testing.T) {
+	menu := NewMenu("Testing")
+	for _, c := range setTriesCases {
+		menu.SetTries(c)
+		assert.Equal(t, c, menu.tries)
 	}
 }
 
@@ -346,15 +357,19 @@ func TestAddColor(t *testing.T) {
 }
 
 func TestClearInAsk(t *testing.T) {
+	stdOut := initTest()
 	reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
 	optFunc := func() {
-		fmt.Println("Option 0 was chosen.")
+		assert.Fail(t, "Should not have called Option 0's function")
 	}
 	actFunc := func(opt Option) {
-		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+		assert.Equal(t, 1, opt.ID)
+		assert.Equal(t, "Option 1", opt.Text)
+		assert.Nil(t, opt.function)
+		assert.False(t, opt.isDefault)
 	}
 	menu := NewMenu("Choose an option.")
-	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.ChangeReaderWriter(reader, stdOut, stdOut)
 	menu.Action(actFunc)
 	menu.ClearOnMenuRun()
 	menu.Option("Option 0", true, optFunc)
@@ -367,6 +382,7 @@ func TestClearInAsk(t *testing.T) {
 }
 
 func TestDefaultAction(t *testing.T) {
+	stdOut := initTest()
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
 	optFunc := func() {
 		assert.Fail(t, "Should not have called option 0's function")
@@ -375,9 +391,8 @@ func TestDefaultAction(t *testing.T) {
 		assert.Equal(t, -1, opt.ID)
 	}
 	menu := NewMenu("Choose an option.")
-	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.ChangeReaderWriter(reader, stdOut, stdOut)
 	menu.Action(actFunc)
-	menu.ClearOnMenuRun()
 	menu.Option("Option 0", false, optFunc)
 	menu.Option("Option 1", false, nil)
 	menu.Option("Option 2", false, nil)
@@ -388,6 +403,7 @@ func TestDefaultAction(t *testing.T) {
 }
 
 func TestDefaultActionWithDefaultOption(t *testing.T) {
+	stdOut := initTest()
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
 	optFunc := func() {
 		assert.Fail(t, "Should not have called option 0's function")
@@ -399,9 +415,8 @@ func TestDefaultActionWithDefaultOption(t *testing.T) {
 		assert.True(t, opt.isDefault)
 	}
 	menu := NewMenu("Choose an option.")
-	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.ChangeReaderWriter(reader, stdOut, stdOut)
 	menu.Action(actFunc)
-	menu.ClearOnMenuRun()
 	menu.Option("Option 0", false, optFunc)
 	menu.Option("Option 1", true, nil)
 	menu.Option("Option 2", false, nil)
@@ -412,6 +427,7 @@ func TestDefaultActionWithDefaultOption(t *testing.T) {
 }
 
 func TestOptionsFunction(t *testing.T) {
+	stdOut := initTest()
 	reader := strings.NewReader("0\r\n") //Simulates the user typing "0" and hitting the [enter] key
 	optFunc := func() {
 	}
@@ -419,9 +435,8 @@ func TestOptionsFunction(t *testing.T) {
 		assert.Fail(t, "Should not have called the menu's default function")
 	}
 	menu := NewMenu("Choose an option.")
-	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.ChangeReaderWriter(reader, stdOut, stdOut)
 	menu.Action(actFunc)
-	menu.ClearOnMenuRun()
 	menu.Option("Option 0", false, optFunc)
 	menu.Option("Option 1", true, nil)
 	menu.Option("Option 2", false, nil)
@@ -432,6 +447,7 @@ func TestOptionsFunction(t *testing.T) {
 }
 
 func TestWlogAskErr(t *testing.T) {
+	stdOut := initTest()
 	reader := strings.NewReader("1") //Simulates the user typing "1" without hitting [enter]. Can't happen when reader is os.Stdin
 	optFunc := func() {
 		assert.Fail(t, "Should not have called option 0's function")
@@ -440,9 +456,8 @@ func TestWlogAskErr(t *testing.T) {
 		assert.Fail(t, "Should not have called the menu's default function")
 	}
 	menu := NewMenu("Choose an option.")
-	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.ChangeReaderWriter(reader, stdOut, stdOut)
 	menu.Action(actFunc)
-	menu.ClearOnMenuRun()
 	menu.Option("Option 0", false, optFunc)
 	menu.Option("Option 1", true, nil)
 	menu.Option("Option 2", false, nil)
@@ -453,6 +468,7 @@ func TestWlogAskErr(t *testing.T) {
 }
 
 func TestLetterForResponse(t *testing.T) {
+	stdOut := initTest()
 	reader := strings.NewReader("a\r\n") //Simulates the user typing "a" and hitting [enter].
 	optFunc := func() {
 		assert.Fail(t, "Should not have called option 0's function")
@@ -461,9 +477,8 @@ func TestLetterForResponse(t *testing.T) {
 		assert.Fail(t, "Should not have called the menu's default function")
 	}
 	menu := NewMenu("Choose an option.")
-	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.ChangeReaderWriter(reader, stdOut, stdOut)
 	menu.Action(actFunc)
-	menu.ClearOnMenuRun()
 	menu.Option("Option 0", false, optFunc)
 	menu.Option("Option 1", true, nil)
 	menu.Option("Option 2", false, nil)
@@ -473,4 +488,32 @@ func TestLetterForResponse(t *testing.T) {
 		e := err.(*MenuError)
 		assert.Equal(t, "a", e.Res)
 	}
+}
+
+func TestLoopAndTries(t *testing.T) {
+	stdOut := initTest()
+	optFunc := func() {
+		assert.Fail(t, "Should not have called option 0's function")
+	}
+	for _, c := range setTriesCases {
+		reader := strings.NewReader("a") //Simulates the user typing "a" and not hitting [enter].
+		menu := NewMenu("Choose an option.")
+		menu.ChangeReaderWriter(reader, stdOut, stdOut)
+		menu.SetTries(c)
+		menu.LoopOnInvalid()
+		menu.Option("Option 0", false, optFunc)
+		menu.Option("Option 1", false, nil)
+		menu.Option("Option 2", false, nil)
+		err := menu.Run()
+		if err != nil {
+			require.True(t, IsMenuErr(err))
+			e := err.(*MenuError)
+			assert.Equal(t, 0, e.TriesLeft)
+		}
+	}
+}
+
+func initTest() *bytes.Buffer {
+	var b []byte
+	return bytes.NewBuffer(b)
 }

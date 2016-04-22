@@ -16,7 +16,7 @@ type assert if you need to.
 Code:
 
 ``` go
-reader := strings.NewReader("1 1\r\n") //Simulates the user hitting the [enter] key
+reader := strings.NewReader("1 1\r\n") //Simulates the user typing "1 1" and hitting the [enter] key
 optFunc := func() {
     fmt.Println("Option 0 was chosen.")
 }
@@ -56,7 +56,7 @@ We caught the err: Duplicated response: 1
 Code:
 
 ``` go
-reader := strings.NewReader("3\r\n") //Simulates the user hitting the [enter] key
+reader := strings.NewReader("3\r\n") //Simulates the user typing "3" and hitting the [enter] key
 optFunc := func() {
     fmt.Println("Option 0 was chosen.")
 }
@@ -124,7 +124,7 @@ We caught the err: No response
 Code:
 
 ``` go
-reader := strings.NewReader("1 2\r\n") //Simulates the user hitting the [enter] key
+reader := strings.NewReader("1 2\r\n") //Simulates the user typing "1 2" and hitting the [enter] key
 optFunc := func() {
     fmt.Println("Option 0 was chosen.")
 }
@@ -315,7 +315,7 @@ var (
 ```go
 func Clear()
 ```
-Clear simply clears the command line interface.
+Clear simply clears the command line interface (os.Stdout only).
 
 #### func  IsDuplicateErr
 
@@ -330,6 +330,14 @@ IsDuplicateErr checks to see if err is of type duplicate returned by menu.
 func IsInvalidErr(err error) bool
 ```
 IsInvalidErr checks to see if err is of type invalid error returned by menu.
+
+#### func  IsMenuErr
+
+```go
+func IsMenuErr(err error) bool
+```
+IsMenuErr checks to see if it is a menu err. This is a general check not a
+specific one.
 
 #### func  IsNoResponseErr
 
@@ -349,7 +357,6 @@ IsTooManyErr checks to see if err is of type too many returned by menu.
 
 ```go
 type Menu struct {
-	// contains filtered or unexported fields
 }
 ```
 
@@ -447,12 +454,21 @@ func (m *Menu) SetSeparator(sep string)
 SetSeparator sets the separator to use when multiple options are valid
 responses. Default value is a space.
 
+#### func (*Menu) SetTries
+
+```go
+func (m *Menu) SetTries(i int)
+```
+SetTries sets the number of tries on the loop before failing out. Default is 3.
+Negative values act like 0.
+
 #### type MenuError
 
 ```go
 type MenuError struct {
-	Err error
-	Res string
+	Err       error
+	Res       string
+	TriesLeft int
 }
 ```
 
@@ -471,7 +487,6 @@ Error prints the error in an easy to read string.
 type Option struct {
 	ID   int
 	Text string
-	// contains filtered or unexported fields
 }
 ```
 
