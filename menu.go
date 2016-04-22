@@ -24,7 +24,7 @@ type Menu struct {
 	defaultFunction func(Option)
 	options         []Option
 	ui              wlog.UI
-	multiseparator  string
+	multiSeparator  string
 	multiFunction   func([]Option)
 	loopOnInvalid   bool
 	clear           bool
@@ -42,7 +42,7 @@ func NewMenu(question string) *Menu {
 		defaultFunction: nil,
 		options:         nil,
 		ui:              ui,
-		multiseparator:  " ",
+		multiSeparator:  " ",
 		multiFunction:   nil,
 		loopOnInvalid:   false,
 		clear:           false,
@@ -68,7 +68,7 @@ func (m *Menu) ClearOnMenuRun() {
 //SetSeparator sets the separator to use when multiple options are valid responses.
 //Default value is a space.
 func (m *Menu) SetSeparator(sep string) {
-	m.multiseparator = sep
+	m.multiSeparator = sep
 }
 
 //LoopOnInvalid is used if an invalid option was given then it will prompt the user again.
@@ -200,7 +200,7 @@ func (m *Menu) ask() ([]Option, error) {
 		return nil, nil
 	}
 
-	resStrings := strings.Split(res, m.multiseparator) //split responses by spaces
+	resStrings := strings.Split(res, m.multiSeparator) //split responses by spaces
 	//Check if we don't want multiple responses
 	if m.multiFunction == nil && len(resStrings) > 1 {
 		return nil, newMenuError(ErrTooMany, "")

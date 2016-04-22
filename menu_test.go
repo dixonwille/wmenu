@@ -104,7 +104,7 @@ func Example_multiple() {
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
 	menu.MultipleAction(multiFunc)
-	menu.SetSeperator(",")
+	menu.SetSeparator(",")
 	menu.Option("Option 0", true, optFunc)
 	menu.Option("Option 1", false, nil)
 	menu.Option("Option 2", true, nil)
@@ -268,7 +268,7 @@ func TestNewMenu(t *testing.T) {
 		assert.Equal(c, menu.question)
 		assert.Nil(menu.defaultFunction)
 		assert.Nil(menu.options)
-		assert.Equal(" ", menu.multiSeperator)
+		assert.Equal(" ", menu.multiSeparator)
 		assert.Nil(menu.multiFunction)
 		assert.False(menu.loopOnInvalid)
 		assert.False(menu.clear)
@@ -285,8 +285,8 @@ func TestClearOnMenuRun(t *testing.T) {
 func TestSetSeperator(t *testing.T) {
 	menu := NewMenu("Testing")
 	for _, c := range setSeperatorCases {
-		menu.SetSeperator(c)
-		assert.Equal(t, c, menu.multiSeperator)
+		menu.SetSeparator(c)
+		assert.Equal(t, c, menu.multiSeparator)
 	}
 }
 
