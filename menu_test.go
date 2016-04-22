@@ -15,7 +15,7 @@ import (
 
 var newMenuCases = []string{"Testing this menu.", "", "!@#$%^&*()"}
 var setSeperatorCases = []string{"", ".", ",", "~"}
-var setTriesCases = []int{0, -4, 5, 500}
+var setTriesCases = []int{0, -4, 5}
 var optionCases = []struct {
 	name     string
 	def      bool
@@ -501,6 +501,7 @@ func TestLoopAndTries(t *testing.T) {
 		menu.ChangeReaderWriter(reader, stdOut, stdOut)
 		menu.SetTries(c)
 		menu.LoopOnInvalid()
+		menu.ClearOnMenuRun()
 		menu.Option("Option 0", false, optFunc)
 		menu.Option("Option 1", false, nil)
 		menu.Option("Option 2", false, nil)

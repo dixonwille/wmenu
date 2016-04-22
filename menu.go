@@ -136,6 +136,9 @@ func (m *Menu) Run() error {
 		//step 2 ask question, get and validate response
 		opt, err := m.ask()
 		if err != nil {
+			if !IsMenuErr(err) {
+				err = newMenuError(err, "", m.triesLeft())
+			}
 			if m.loopOnInvalid && m.tries > 0 {
 				if m.clear {
 					Clear()
@@ -143,9 +146,6 @@ func (m *Menu) Run() error {
 				m.tries = m.tries - 1
 				m.ui.Error(err.Error())
 			} else {
-				if !IsMenuErr(err) {
-					return newMenuError(err, "", m.triesLeft())
-				}
 				return err
 			}
 		} else {
