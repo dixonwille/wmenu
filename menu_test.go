@@ -177,7 +177,7 @@ func Example_errorNoResponse() {
 }
 
 func Example_errorInvalid() {
-	reader := strings.NewReader("3\r\n") //Simulates the user hitting the [enter] key
+	reader := strings.NewReader("3\r\n") //Simulates the user typing "3" and hitting the [enter] key
 	optFunc := func() {
 		fmt.Println("Option 0 was chosen.")
 	}
@@ -203,7 +203,7 @@ func Example_errorInvalid() {
 }
 
 func Example_errorTooMany() {
-	reader := strings.NewReader("1 2\r\n") //Simulates the user hitting the [enter] key
+	reader := strings.NewReader("1 2\r\n") //Simulates the user typing "1 2" and hitting the [enter] key
 	optFunc := func() {
 		fmt.Println("Option 0 was chosen.")
 	}
@@ -229,7 +229,7 @@ func Example_errorTooMany() {
 }
 
 func Example_errorDuplicate() {
-	reader := strings.NewReader("1 1\r\n") //Simulates the user hitting the [enter] key
+	reader := strings.NewReader("1 1\r\n") //Simulates the user typing "1 1" and hitting the [enter] key
 	optFunc := func() {
 		fmt.Println("Option 0 was chosen.")
 	}
@@ -342,5 +342,135 @@ func TestAddColor(t *testing.T) {
 	for _, c := range addColorCases {
 		menu.AddColor(c.opt, c.que, c.res, c.err)
 		//Nothing to assert on just make sure the function does not fail
+	}
+}
+
+func TestClearInAsk(t *testing.T) {
+	reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
+	optFunc := func() {
+		fmt.Println("Option 0 was chosen.")
+	}
+	actFunc := func(opt Option) {
+		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+	}
+	menu := NewMenu("Choose an option.")
+	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.Action(actFunc)
+	menu.ClearOnMenuRun()
+	menu.Option("Option 0", true, optFunc)
+	menu.Option("Option 1", false, nil)
+	menu.Option("Option 2", true, nil)
+	err := menu.Run()
+	if err != nil {
+		assert.Fail(t, err.Error())
+	}
+}
+
+func TestDefaultAction(t *testing.T) {
+	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
+	optFunc := func() {
+		assert.Fail(t, "Should not have called option 0's function")
+	}
+	actFunc := func(opt Option) {
+		assert.Equal(t, -1, opt.ID)
+	}
+	menu := NewMenu("Choose an option.")
+	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.Action(actFunc)
+	menu.ClearOnMenuRun()
+	menu.Option("Option 0", false, optFunc)
+	menu.Option("Option 1", false, nil)
+	menu.Option("Option 2", false, nil)
+	err := menu.Run()
+	if err != nil {
+		assert.Fail(t, err.Error())
+	}
+}
+
+func TestDefaultActionWithDefaultOption(t *testing.T) {
+	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
+	optFunc := func() {
+		assert.Fail(t, "Should not have called option 0's function")
+	}
+	actFunc := func(opt Option) {
+		assert.Equal(t, 1, opt.ID)
+		assert.Equal(t, "Option 1", opt.Text)
+		assert.Nil(t, opt.function)
+		assert.True(t, opt.isDefault)
+	}
+	menu := NewMenu("Choose an option.")
+	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.Action(actFunc)
+	menu.ClearOnMenuRun()
+	menu.Option("Option 0", false, optFunc)
+	menu.Option("Option 1", true, nil)
+	menu.Option("Option 2", false, nil)
+	err := menu.Run()
+	if err != nil {
+		assert.Fail(t, err.Error())
+	}
+}
+
+func TestOptionsFunction(t *testing.T) {
+	reader := strings.NewReader("0\r\n") //Simulates the user typing "0" and hitting the [enter] key
+	optFunc := func() {
+	}
+	actFunc := func(opt Option) {
+		assert.Fail(t, "Should not have called the menu's default function")
+	}
+	menu := NewMenu("Choose an option.")
+	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.Action(actFunc)
+	menu.ClearOnMenuRun()
+	menu.Option("Option 0", false, optFunc)
+	menu.Option("Option 1", true, nil)
+	menu.Option("Option 2", false, nil)
+	err := menu.Run()
+	if err != nil {
+		assert.Fail(t, err.Error())
+	}
+}
+
+func TestWlogAskErr(t *testing.T) {
+	reader := strings.NewReader("1") //Simulates the user typing "1" without hitting [enter]. Can't happen when reader is os.Stdin
+	optFunc := func() {
+		assert.Fail(t, "Should not have called option 0's function")
+	}
+	actFunc := func(opt Option) {
+		assert.Fail(t, "Should not have called the menu's default function")
+	}
+	menu := NewMenu("Choose an option.")
+	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.Action(actFunc)
+	menu.ClearOnMenuRun()
+	menu.Option("Option 0", false, optFunc)
+	menu.Option("Option 1", true, nil)
+	menu.Option("Option 2", false, nil)
+	err := menu.Run()
+	if err != nil {
+		assert.Equal(t, "EOF", err.Error())
+	}
+}
+
+func TestLetterForResponse(t *testing.T) {
+	reader := strings.NewReader("a\r\n") //Simulates the user typing "a" and hitting [enter].
+	optFunc := func() {
+		assert.Fail(t, "Should not have called option 0's function")
+	}
+	actFunc := func(opt Option) {
+		assert.Fail(t, "Should not have called the menu's default function")
+	}
+	menu := NewMenu("Choose an option.")
+	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.Action(actFunc)
+	menu.ClearOnMenuRun()
+	menu.Option("Option 0", false, optFunc)
+	menu.Option("Option 1", true, nil)
+	menu.Option("Option 2", false, nil)
+	err := menu.Run()
+	if err != nil {
+		require.True(t, IsInvalidErr(err))
+		e := err.(*MenuError)
+		assert.Equal(t, "a", e.Res)
 	}
 }
