@@ -154,6 +154,11 @@ func (m *Menu) Run() error {
 		}
 	}
 	//step 3 call appropriate action with the responses
+	m.callAppropriate(options)
+	return nil
+}
+
+func (m *Menu) callAppropriate(options []Option) {
 	switch len(options) {
 	//if no options go through options and look for default options
 	case 0:
@@ -186,7 +191,6 @@ func (m *Menu) Run() error {
 	default:
 		m.multiFunction(options)
 	}
-	return nil
 }
 
 func (m *Menu) print() {
