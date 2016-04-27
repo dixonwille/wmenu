@@ -24,12 +24,12 @@ var optionCases = []struct {
 	{"Options", true, func() { fmt.Println("testing option") }},
 	{"", false, nil},
 }
-var actionCases = []func(Option){
-	func(opt Option) { fmt.Println(opt) },
+var actionCases = []func(Opt){
+	func(opt Opt) { fmt.Println(opt) },
 	nil,
 }
-var multipleActionCases = []func([]Option){
-	func(opts []Option) { fmt.Println(opts) },
+var multipleActionCases = []func([]Opt){
+	func(opts []Opt) { fmt.Println(opts) },
 	nil,
 }
 var addColorCases = []struct {
@@ -50,7 +50,7 @@ func Example_simple() {
 	optFunc := func() {
 		fmt.Println("Option 0 was chosen.")
 	}
-	actFunc := func(opt Option) {
+	actFunc := func(opt Opt) {
 		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 	}
 	menu := NewMenu("Choose an option.")
@@ -98,7 +98,7 @@ func Example_multiple() {
 	optFunc := func() {
 		fmt.Println("Option 0 was chosen.")
 	}
-	multiFunc := func(opts []Option) {
+	multiFunc := func(opts []Opt) {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
@@ -128,7 +128,7 @@ func Example_multipleDefault() {
 	optFunc := func() {
 		fmt.Println("Option 0 was chosen.")
 	}
-	multiFunc := func(opts []Option) {
+	multiFunc := func(opts []Opt) {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
@@ -235,7 +235,7 @@ func Example_errorDuplicate() {
 	optFunc := func() {
 		fmt.Println("Option 0 was chosen.")
 	}
-	multiFunc := func(opts []Option) {
+	multiFunc := func(opts []Opt) {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
@@ -362,7 +362,7 @@ func TestClearInAsk(t *testing.T) {
 	optFunc := func() {
 		assert.Fail(t, "Should not have called Option 0's function")
 	}
-	actFunc := func(opt Option) {
+	actFunc := func(opt Opt) {
 		assert.Equal(t, 1, opt.ID)
 		assert.Equal(t, "Option 1", opt.Text)
 		assert.Nil(t, opt.function)
@@ -387,7 +387,7 @@ func TestDefaultAction(t *testing.T) {
 	optFunc := func() {
 		assert.Fail(t, "Should not have called option 0's function")
 	}
-	actFunc := func(opt Option) {
+	actFunc := func(opt Opt) {
 		assert.Equal(t, -1, opt.ID)
 	}
 	menu := NewMenu("Choose an option.")
@@ -408,7 +408,7 @@ func TestDefaultActionWithDefaultOption(t *testing.T) {
 	optFunc := func() {
 		assert.Fail(t, "Should not have called option 0's function")
 	}
-	actFunc := func(opt Option) {
+	actFunc := func(opt Opt) {
 		assert.Equal(t, 1, opt.ID)
 		assert.Equal(t, "Option 1", opt.Text)
 		assert.Nil(t, opt.function)
@@ -431,7 +431,7 @@ func TestOptionsFunction(t *testing.T) {
 	reader := strings.NewReader("0\r\n") //Simulates the user typing "0" and hitting the [enter] key
 	optFunc := func() {
 	}
-	actFunc := func(opt Option) {
+	actFunc := func(opt Opt) {
 		assert.Fail(t, "Should not have called the menu's default function")
 	}
 	menu := NewMenu("Choose an option.")
@@ -452,7 +452,7 @@ func TestWlogAskErr(t *testing.T) {
 	optFunc := func() {
 		assert.Fail(t, "Should not have called option 0's function")
 	}
-	actFunc := func(opt Option) {
+	actFunc := func(opt Opt) {
 		assert.Fail(t, "Should not have called the menu's default function")
 	}
 	menu := NewMenu("Choose an option.")
@@ -473,7 +473,7 @@ func TestLetterForResponse(t *testing.T) {
 	optFunc := func() {
 		assert.Fail(t, "Should not have called option 0's function")
 	}
-	actFunc := func(opt Option) {
+	actFunc := func(opt Opt) {
 		assert.Fail(t, "Should not have called the menu's default function")
 	}
 	menu := NewMenu("Choose an option.")

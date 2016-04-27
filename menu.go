@@ -19,11 +19,11 @@ import (
 //A user can then select options and Menu will validate the response and perform the correct action.
 type Menu struct {
 	question        string
-	defaultFunction func(Option)
-	options         []Option
+	defaultFunction func(Opt)
+	options         []Opt
 	ui              wlog.UI
 	multiSeparator  string
-	multiFunction   func([]Option)
+	multiFunction   func([]Opt)
 	loopOnInvalid   bool
 	clear           bool
 	tries           int
@@ -96,14 +96,14 @@ func (m *Menu) Option(title string, isDefault bool, function func()) {
 //Action adds a default action to use in certain scenarios.
 //If the selected option (by default or user selected) does not have a function applied to it this will be called.
 //If there are no default options and no option was selected this will be called with an option that has an ID of -1.
-func (m *Menu) Action(function func(Option)) {
+func (m *Menu) Action(function func(Opt)) {
 	m.defaultFunction = function
 }
 
 //MultipleAction is called when multiple options are selected (by default or user selected).
 //If this is set then it uses the separator string specified by SetSeparator (Default is a space) to separate the responses.
 //If this is not set then it is implied that the menu only allows for one option to be selected.
-func (m *Menu) MultipleAction(function func([]Option)) {
+func (m *Menu) MultipleAction(function func([]Opt)) {
 	m.multiFunction = function
 }
 
@@ -126,7 +126,7 @@ func (m *Menu) Run() error {
 		Clear()
 	}
 	valid := false
-	var options []Option
+	var options []Opt
 	//Loop and on error check if loopOnInvalid is enabled.
 	//If it is Clear the screen and write error.
 	//Then ask again
@@ -158,7 +158,7 @@ func (m *Menu) Run() error {
 	return nil
 }
 
-func (m *Menu) callAppropriate(options []Option) {
+func (m *Menu) callAppropriate(options []Opt) {
 	switch len(options) {
 	//if no options go through options and look for default options
 	case 0:
@@ -166,7 +166,7 @@ func (m *Menu) callAppropriate(options []Option) {
 		switch len(opt) {
 		//if there are no default options call the defaultFunction of the menu
 		case 0:
-			m.defaultFunction(Option{ID: -1})
+			m.defaultFunction(Opt{ID: -1})
 			//if there is one default option call it's function if it exist
 			//if it does not, call the menu's defaultFunction
 		case 1:
@@ -199,7 +199,7 @@ func (m *Menu) print() {
 	}
 }
 
-func (m *Menu) ask() ([]Option, error) {
+func (m *Menu) ask() ([]Opt, error) {
 	res, err := m.ui.Ask(m.question)
 	if err != nil {
 		return nil, err
@@ -248,7 +248,7 @@ func (m *Menu) ask() ([]Option, error) {
 	}
 
 	//Parse responses and return them as options
-	var finalOptions []Option
+	var finalOptions []Opt
 	for _, response := range responses {
 		finalOptions = append(finalOptions, m.options[response])
 	}
@@ -267,8 +267,8 @@ func exist(slice []int, number int) bool {
 }
 
 //gets a list of default options
-func (m *Menu) getDefault() []Option {
-	var opt []Option
+func (m *Menu) getDefault() []Opt {
+	var opt []Opt
 	for _, o := range m.options {
 		if o.isDefault {
 			opt = append(opt, o)
@@ -278,7 +278,7 @@ func (m *Menu) getDefault() []Option {
 }
 
 //make sure that there is an action available to be called in certain cases
-func (m *Menu) checkOptAndFunc(opt []Option) bool {
+func (m *Menu) checkOptAndFunc(opt []Opt) bool {
 	return ((len(opt) == 0 && m.defaultFunction == nil) || (len(opt) == 1 && opt[0].function == nil && m.defaultFunction == nil) || (len(opt) > 1 && m.multiFunction == nil))
 }
 
