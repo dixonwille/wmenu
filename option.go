@@ -1,7 +1,5 @@
 package wmenu
 
-//TODO:0 Fix this so that helpers know which option I am talking about issue:1
-
 //Opt is what Menu uses to display options to screen.
 //Also holds information on what should run and if it is a default option
 type Opt struct {
