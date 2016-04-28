@@ -5,11 +5,11 @@ package wmenu
 type Opt struct {
 	ID        int
 	Text      string
-	function  func()
+	function  func() error
 	isDefault bool
 }
 
-func newOption(id int, text string, def bool, function func()) *Opt {
+func newOption(id int, text string, def bool, function func() error) *Opt {
 	return &Opt{
 		ID:        id,
 		Text:      text,

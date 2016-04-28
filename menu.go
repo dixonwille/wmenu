@@ -15,17 +15,18 @@ import (
 	"github.com/dixonwille/wlog"
 )
 
-//TODO:0 Make error required on return issue:2
+//DOING:0 Make error required on return issue:2
+//TODO:0 Refactor the README to not include godoc as file issue:3
 
 //Menu is used to display options to a user.
 //A user can then select options and Menu will validate the response and perform the correct action.
 type Menu struct {
 	question        string
-	defaultFunction func(Opt)
+	defaultFunction func(Opt) error
 	options         []Opt
 	ui              wlog.UI
 	multiSeparator  string
-	multiFunction   func([]Opt)
+	multiFunction   func([]Opt) error
 	loopOnInvalid   bool
 	clear           bool
 	tries           int
@@ -90,7 +91,7 @@ func (m *Menu) LoopOnInvalid() {
 //isDefault is whether this option is a default option (IE when no options are selected).
 //function is what is called when only this option is selected.
 //If function is nil then it will default to the menu's Action.
-func (m *Menu) Option(title string, isDefault bool, function func()) {
+func (m *Menu) Option(title string, isDefault bool, function func() error) {
 	option := newOption(len(m.options), title, isDefault, function)
 	m.options = append(m.options, *option)
 }
@@ -98,14 +99,14 @@ func (m *Menu) Option(title string, isDefault bool, function func()) {
 //Action adds a default action to use in certain scenarios.
 //If the selected option (by default or user selected) does not have a function applied to it this will be called.
 //If there are no default options and no option was selected this will be called with an option that has an ID of -1.
-func (m *Menu) Action(function func(Opt)) {
+func (m *Menu) Action(function func(Opt) error) {
 	m.defaultFunction = function
 }
 
 //MultipleAction is called when multiple options are selected (by default or user selected).
 //If this is set then it uses the separator string specified by SetSeparator (Default is a space) to separate the responses.
 //If this is not set then it is implied that the menu only allows for one option to be selected.
-func (m *Menu) MultipleAction(function func([]Opt)) {
+func (m *Menu) MultipleAction(function func([]Opt) error) {
 	m.multiFunction = function
 }
 
@@ -156,43 +157,62 @@ func (m *Menu) Run() error {
 		}
 	}
 	//step 3 call appropriate action with the responses
-	m.callAppropriate(options)
-	return nil
+	return m.callAppropriate(options)
 }
 
-func (m *Menu) callAppropriate(options []Opt) {
+func (m *Menu) callAppropriate(options []Opt) (err error) {
 	switch len(options) {
 	//if no options go through options and look for default options
 	case 0:
-		opt := m.getDefault()
-		switch len(opt) {
-		//if there are no default options call the defaultFunction of the menu
-		case 0:
-			m.defaultFunction(Opt{ID: -1})
-			//if there is one default option call it's function if it exist
-			//if it does not, call the menu's defaultFunction
-		case 1:
-			if opt[0].function == nil {
-				m.defaultFunction(opt[0])
-			} else {
-				opt[0].function()
-			}
-			//if there is more than one default option call the menu's multiFunction
-		default:
-			m.multiFunction(opt)
-		}
+		return m.callAppropriateNoOptions()
 		//if there is one option call it's funciton if it exist
 		//if it does not, call the menu's defaultFunction
 	case 1:
 		if options[0].function == nil {
-			m.defaultFunction(options[0])
+			if err := m.defaultFunction(options[0]); err != nil {
+				return err
+			}
 		} else {
-			options[0].function()
+			if err := options[0].function(); err != nil {
+				return err
+			}
 		}
 		//if there is more than one option call the menu's multiFunction
 	default:
-		m.multiFunction(options)
+		if err := m.multiFunction(options); err != nil {
+			return err
+		}
 	}
+	return nil
+}
+
+func (m *Menu) callAppropriateNoOptions() (err error) {
+	opt := m.getDefault()
+	switch len(opt) {
+	//if there are no default options call the defaultFunction of the menu
+	case 0:
+		if err := m.defaultFunction(Opt{ID: -1}); err != nil {
+			return err
+		}
+		//if there is one default option call it's function if it exist
+		//if it does not, call the menu's defaultFunction
+	case 1:
+		if opt[0].function == nil {
+			if err := m.defaultFunction(opt[0]); err != nil {
+				return err
+			}
+		} else {
+			if err := opt[0].function(); err != nil {
+				return err
+			}
+		}
+		//if there is more than one default option call the menu's multiFunction
+	default:
+		if err := m.multiFunction(opt); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (m *Menu) print() {
