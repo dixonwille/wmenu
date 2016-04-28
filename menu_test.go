@@ -2,6 +2,7 @@ package wmenu
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -43,6 +44,23 @@ var addColorCases = []struct {
 	{wlog.Yellow, wlog.White, wlog.Cyan, wlog.Magenta},
 	{wlog.BrightBlack, wlog.BrightBlue, wlog.BrightCyan, wlog.BrightGreen},
 	{wlog.BrightRed, wlog.BrightWhite, wlog.BrightYellow, wlog.BrightMagenta},
+}
+var errorCases = []struct {
+	input         string
+	optFunction   func() error
+	defFunction   func(Opt) error
+	multiFunction func([]Opt) error
+	expected      string
+	singDef       bool
+	multiDef      bool
+}{
+	{"0\r\n", func() error { return errors.New("Oops") }, nil, nil, "Oops", false, false},
+	{"0\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
+	{"0 1\r\n", nil, nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
+	{"\r\n", func() error { return errors.New("Oops") }, nil, nil, "Oops", true, false},
+	{"\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", true, false},
+	{"\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
+	{"\r\n", nil, nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", true, true},
 }
 
 func Example_simple() {
@@ -516,6 +534,27 @@ func TestLetterForResponse(t *testing.T) {
 	} else {
 		assert.Fail(t, "Expected to get an Invalid Response error but instead got no error")
 	}
+}
+
+func TestActionError(t *testing.T) {
+	stdout := initTest()
+	for _, c := range errorCases {
+		reader := strings.NewReader(c.input)
+		menu := NewMenu("Choose an option.")
+		menu.ChangeReaderWriter(reader, stdout, stdout)
+		menu.Action(c.defFunction)
+		menu.MultipleAction(c.multiFunction)
+		menu.Option("Option 0", c.singDef, c.optFunction)
+		menu.Option("Option 2", false, nil)
+		menu.Option("Option 3", c.multiDef, nil)
+		err := menu.Run()
+		if err != nil {
+			assert.Equal(t, c.expected, err.Error())
+		} else {
+			assert.Fail(t, "Expected an error but did not get one")
+		}
+	}
+
 }
 
 func TestLoopAndTries(t *testing.T) {
