@@ -16,6 +16,7 @@ import (
 
 var newMenuCases = []string{"Testing this menu.", "", "!@#$%^&*()"}
 var setSeperatorCases = []string{"", ".", ",", "~"}
+var defaultIconCases = []string{"", ",", "*", "~", "!", "@"}
 var setTriesCases = []int{0, -4, 5}
 var optionCases = []struct {
 	name     string
@@ -84,9 +85,9 @@ func Example_simple() {
 		log.Fatal(err)
 	}
 	//Output:
-	//0) Option 0
+	//0) *Option 0
 	//1) Option 1
-	//2) Option 2
+	//2) *Option 2
 	//Choose an option.
 	//Option 1 has an id of 1.
 }
@@ -107,7 +108,7 @@ func Example_simpleDefault() {
 		log.Fatal(err)
 	}
 	//Output:
-	//0) Option 0
+	//0) *Option 0
 	//1) Option 1
 	//2) Option 2
 	//Choose an option.
@@ -138,9 +139,9 @@ func Example_multiple() {
 		log.Fatal(err)
 	}
 	//Output:
-	//0) Option 0
+	//0) *Option 0
 	//1) Option 1
-	//2) Option 2
+	//2) *Option 2
 	//Choose an option.
 	//Option 1 has an id of 1.
 	//Option 2 has an id of 2.
@@ -169,9 +170,9 @@ func Example_multipleDefault() {
 		log.Fatal(err)
 	}
 	//Output:
-	//0) Option 0
+	//0) *Option 0
 	//1) Option 1
-	//2) Option 2
+	//2) *Option 2
 	//Choose an option.
 	//Option 0 has an id of 0.
 	//Option 2 has an id of 2.
@@ -384,6 +385,15 @@ func TestAddColor(t *testing.T) {
 		menu.AddColor(c.opt, c.que, c.res, c.err)
 		//Nothing to assert on just make sure the function does not fail
 	}
+}
+
+func TestSetDefaultIcon(t *testing.T) {
+	menu := NewMenu("Testing")
+	for _, c := range defaultIconCases {
+		menu.SetDefaultIcon(c)
+		assert.Equal(t, c, menu.defIcon)
+	}
+
 }
 
 func TestClearInAsk(t *testing.T) {

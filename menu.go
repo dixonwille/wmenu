@@ -31,6 +31,7 @@ type Menu struct {
 	loopOnInvalid   bool
 	clear           bool
 	tries           int
+	defIcon         string
 }
 
 //NewMenu creates a menu with a wlog.UI as the writer.
@@ -50,6 +51,7 @@ func NewMenu(question string) *Menu {
 		loopOnInvalid:   false,
 		clear:           false,
 		tries:           3,
+		defIcon:         "*",
 	}
 }
 
@@ -85,6 +87,11 @@ func (m *Menu) SetTries(i int) {
 //LoopOnInvalid is used if an invalid option was given then it will prompt the user again.
 func (m *Menu) LoopOnInvalid() {
 	m.loopOnInvalid = true
+}
+
+//SetDefaultIcon sets the icon used to identify which options will be selected by default
+func (m *Menu) SetDefaultIcon(icon string) {
+	m.defIcon = icon
 }
 
 //Option adds an option to the menu for the user to select from.
@@ -217,8 +224,13 @@ func (m *Menu) callAppropriateNoOptions() (err error) {
 }
 
 func (m *Menu) print() {
+
 	for _, opt := range m.options {
-		m.ui.Output(fmt.Sprintf("%d) %s", opt.ID, opt.Text))
+		icon := m.defIcon
+		if !opt.isDefault {
+			icon = ""
+		}
+		m.ui.Output(fmt.Sprintf("%d) %s%s", opt.ID, icon, opt.Text))
 	}
 }
 
