@@ -15,7 +15,6 @@ import (
 	"github.com/dixonwille/wlog"
 )
 
-//DOING:0 Make error required on return issue:2
 //TODO:0 Refactor the README to not include godoc as file issue:3
 
 //Menu is used to display options to a user.
