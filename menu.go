@@ -16,6 +16,8 @@ import (
 )
 
 //TODO:0 Refactor the README to not include godoc as file issue:3
+//TODO:0 Add default icon and method issue:4
+//TODO:0 Add yes no option to the menu issue:5
 
 //Menu is used to display options to a user.
 //A user can then select options and Menu will validate the response and perform the correct action.
