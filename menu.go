@@ -15,6 +15,8 @@ import (
 	"github.com/dixonwille/wlog"
 )
 
+//TODO:0 Make error required on return issue:2
+
 //Menu is used to display options to a user.
 //A user can then select options and Menu will validate the response and perform the correct action.
 type Menu struct {
