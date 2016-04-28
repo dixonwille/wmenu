@@ -19,17 +19,17 @@ var setTriesCases = []int{0, -4, 5}
 var optionCases = []struct {
 	name     string
 	def      bool
-	function func()
+	function func() error
 }{
-	{"Options", true, func() { fmt.Println("testing option") }},
+	{"Options", true, func() error { fmt.Println("testing option"); return nil }},
 	{"", false, nil},
 }
-var actionCases = []func(Opt){
-	func(opt Opt) { fmt.Println(opt) },
+var actionCases = []func(Opt) error{
+	func(opt Opt) error { fmt.Println(opt); return nil },
 	nil,
 }
-var multipleActionCases = []func([]Opt){
-	func(opts []Opt) { fmt.Println(opts) },
+var multipleActionCases = []func([]Opt) error{
+	func(opts []Opt) error { fmt.Println(opts); return nil },
 	nil,
 }
 var addColorCases = []struct {
@@ -47,11 +47,13 @@ var addColorCases = []struct {
 
 func Example_simple() {
 	reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		fmt.Println("Option 0 was chosen.")
+		return nil
 	}
-	actFunc := func(opt Opt) {
+	actFunc := func(opt Opt) error {
 		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
@@ -73,8 +75,9 @@ func Example_simple() {
 
 func Example_simpleDefault() {
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		fmt.Fprint(os.Stdout, "Option 0 was chosen.")
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
@@ -95,13 +98,15 @@ func Example_simpleDefault() {
 
 func Example_multiple() {
 	reader := strings.NewReader("1,2\r\n") //Simulates the user typing "1,2" and hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		fmt.Println("Option 0 was chosen.")
+		return nil
 	}
-	multiFunc := func(opts []Opt) {
+	multiFunc := func(opts []Opt) error {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
@@ -125,13 +130,15 @@ func Example_multiple() {
 
 func Example_multipleDefault() {
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		fmt.Println("Option 0 was chosen.")
+		return nil
 	}
-	multiFunc := func(opts []Opt) {
+	multiFunc := func(opts []Opt) error {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
@@ -154,8 +161,9 @@ func Example_multipleDefault() {
 
 func Example_errorNoResponse() {
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		fmt.Println("Option 0 was chosen.")
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
@@ -180,8 +188,9 @@ func Example_errorNoResponse() {
 
 func Example_errorInvalid() {
 	reader := strings.NewReader("3\r\n") //Simulates the user typing "3" and hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		fmt.Println("Option 0 was chosen.")
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
@@ -206,8 +215,9 @@ func Example_errorInvalid() {
 
 func Example_errorTooMany() {
 	reader := strings.NewReader("1 2\r\n") //Simulates the user typing "1 2" and hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		fmt.Println("Option 0 was chosen.")
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
@@ -232,13 +242,15 @@ func Example_errorTooMany() {
 
 func Example_errorDuplicate() {
 	reader := strings.NewReader("1 1\r\n") //Simulates the user typing "1 1" and hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		fmt.Println("Option 0 was chosen.")
+		return nil
 	}
-	multiFunc := func(opts []Opt) {
+	multiFunc := func(opts []Opt) error {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
@@ -359,14 +371,16 @@ func TestAddColor(t *testing.T) {
 func TestClearInAsk(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		assert.Fail(t, "Should not have called Option 0's function")
+		return nil
 	}
-	actFunc := func(opt Opt) {
+	actFunc := func(opt Opt) error {
 		assert.Equal(t, 1, opt.ID)
 		assert.Equal(t, "Option 1", opt.Text)
 		assert.Nil(t, opt.function)
 		assert.False(t, opt.isDefault)
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, stdOut, stdOut)
@@ -384,11 +398,13 @@ func TestClearInAsk(t *testing.T) {
 func TestDefaultAction(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		assert.Fail(t, "Should not have called option 0's function")
+		return nil
 	}
-	actFunc := func(opt Opt) {
+	actFunc := func(opt Opt) error {
 		assert.Equal(t, -1, opt.ID)
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, stdOut, stdOut)
@@ -405,14 +421,16 @@ func TestDefaultAction(t *testing.T) {
 func TestDefaultActionWithDefaultOption(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
 		assert.Fail(t, "Should not have called option 0's function")
+		return nil
 	}
-	actFunc := func(opt Opt) {
+	actFunc := func(opt Opt) error {
 		assert.Equal(t, 1, opt.ID)
 		assert.Equal(t, "Option 1", opt.Text)
 		assert.Nil(t, opt.function)
 		assert.True(t, opt.isDefault)
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, stdOut, stdOut)
@@ -429,10 +447,12 @@ func TestDefaultActionWithDefaultOption(t *testing.T) {
 func TestOptionsFunction(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("0\r\n") //Simulates the user typing "0" and hitting the [enter] key
-	optFunc := func() {
+	optFunc := func() error {
+		return nil
 	}
-	actFunc := func(opt Opt) {
+	actFunc := func(opt Opt) error {
 		assert.Fail(t, "Should not have called the menu's default function")
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, stdOut, stdOut)
@@ -449,11 +469,13 @@ func TestOptionsFunction(t *testing.T) {
 func TestWlogAskErr(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("1") //Simulates the user typing "1" without hitting [enter]. Can't happen when reader is os.Stdin
-	optFunc := func() {
+	optFunc := func() error {
 		assert.Fail(t, "Should not have called option 0's function")
+		return nil
 	}
-	actFunc := func(opt Opt) {
+	actFunc := func(opt Opt) error {
 		assert.Fail(t, "Should not have called the menu's default function")
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, stdOut, stdOut)
@@ -464,17 +486,21 @@ func TestWlogAskErr(t *testing.T) {
 	err := menu.Run()
 	if err != nil {
 		assert.Equal(t, "EOF", err.Error())
+	} else {
+		assert.Fail(t, "Expected to get an error of EOF but instead got no error")
 	}
 }
 
 func TestLetterForResponse(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("a\r\n") //Simulates the user typing "a" and hitting [enter].
-	optFunc := func() {
+	optFunc := func() error {
 		assert.Fail(t, "Should not have called option 0's function")
+		return nil
 	}
-	actFunc := func(opt Opt) {
+	actFunc := func(opt Opt) error {
 		assert.Fail(t, "Should not have called the menu's default function")
+		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, stdOut, stdOut)
@@ -487,13 +513,16 @@ func TestLetterForResponse(t *testing.T) {
 		require.True(t, IsInvalidErr(err))
 		e := err.(*MenuError)
 		assert.Equal(t, "a", e.Res)
+	} else {
+		assert.Fail(t, "Expected to get an Invalid Response error but instead got no error")
 	}
 }
 
 func TestLoopAndTries(t *testing.T) {
 	stdOut := initTest()
-	optFunc := func() {
+	optFunc := func() error {
 		assert.Fail(t, "Should not have called option 0's function")
+		return nil
 	}
 	for _, c := range setTriesCases {
 		reader := strings.NewReader("a") //Simulates the user typing "a" and not hitting [enter].
@@ -510,6 +539,8 @@ func TestLoopAndTries(t *testing.T) {
 			require.True(t, IsMenuErr(err))
 			e := err.(*MenuError)
 			assert.Equal(t, 0, e.TriesLeft)
+		} else {
+			assert.Fail(t, "Expected to get a general Menu error but instead got no error")
 		}
 	}
 }
