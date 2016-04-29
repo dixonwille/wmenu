@@ -120,7 +120,7 @@ func Example_yesNo() {
 		log.Fatal(err)
 	}
 	//Output:
-	//Would you like to start?
+	//Would you like to start? (Y/n)
 	//y has an id of 0.
 }
 

@@ -260,6 +260,13 @@ func (m *Menu) print() {
 }
 
 func (m *Menu) ask() ([]Opt, error) {
+	if m.isYN {
+		if m.ynDef == y {
+			m.question += " (Y/n)"
+		} else {
+			m.question += " (y/N)"
+		}
+	}
 	res, err := m.ui.Ask(m.question)
 	if err != nil {
 		return nil, err
