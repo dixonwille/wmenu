@@ -3,6 +3,8 @@
 //It uses os.Stdin, os.Stdout, and os.Stderr with concurrency by default.
 //wmenu allows you to change the color of the different parts of the menu.
 //This package also creates it's own error structure so you can type assert if you need to.
+//wmenu will validate all responses before calling any function.
+//It will also figure out which function should be called so you don't have to.
 package wmenu
 
 import (
@@ -20,8 +22,6 @@ const (
 	y = iota
 	n
 )
-
-//TODO:0 Refactor the README to not include godoc as file issue:3
 
 //Menu is used to display options to a user.
 //A user can then select options and Menu will validate the response and perform the correct action.
