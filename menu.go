@@ -9,14 +9,20 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/dixonwille/wlog"
 )
 
+const (
+	y = iota
+	n
+)
+
 //TODO:0 Refactor the README to not include godoc as file issue:3
-//TODO:0 Add yes no option to the menu issue:5
+//DOING:0 Add yes no option to the menu issue:5
 
 //Menu is used to display options to a user.
 //A user can then select options and Menu will validate the response and perform the correct action.
@@ -31,6 +37,8 @@ type Menu struct {
 	clear           bool
 	tries           int
 	defIcon         string
+	isYN            bool
+	ynDef           int
 }
 
 //NewMenu creates a menu with a wlog.UI as the writer.
@@ -51,6 +59,8 @@ func NewMenu(question string) *Menu {
 		clear:           false,
 		tries:           3,
 		defIcon:         "*",
+		isYN:            false,
+		ynDef:           0,
 	}
 }
 
@@ -91,6 +101,17 @@ func (m *Menu) LoopOnInvalid() {
 //SetDefaultIcon sets the icon used to identify which options will be selected by default
 func (m *Menu) SetDefaultIcon(icon string) {
 	m.defIcon = icon
+}
+
+//IsYesNo sets the menu to a yes/no state.
+//Does not show options but does ask question.
+//Will also parse the answer to allow for all variants of yes/no (IE Y yes No ...)
+//Specify the default value using def. 0 is for yes and 1 is for no.
+//Both will call the Action function you specified.
+// Opt{ID: 0, Text: "y"} for yes and Opt{ID: 1, Text: "n"} for no will be passed to the function.
+func (m *Menu) IsYesNo(def int) {
+	m.isYN = true
+	m.ynDef = def
 }
 
 //Option adds an option to the menu for the user to select from.
@@ -222,14 +243,20 @@ func (m *Menu) callAppropriateNoOptions() (err error) {
 	return nil
 }
 
+//hide options when this is a yes or no
 func (m *Menu) print() {
-
-	for _, opt := range m.options {
-		icon := m.defIcon
-		if !opt.isDefault {
-			icon = ""
+	if !m.isYN {
+		for _, opt := range m.options {
+			icon := m.defIcon
+			if !opt.isDefault {
+				icon = ""
+			}
+			m.ui.Output(fmt.Sprintf("%d) %s%s", opt.ID, icon, opt.Text))
 		}
-		m.ui.Output(fmt.Sprintf("%d) %s%s", opt.ID, icon, opt.Text))
+	} else {
+		m.options = []Opt{}
+		m.Option("y", m.ynDef == y, nil)
+		m.Option("n", m.ynDef == n, nil)
 	}
 }
 
@@ -249,7 +276,36 @@ func (m *Menu) ask() ([]Opt, error) {
 		return nil, nil
 	}
 
-	resStrings := strings.Split(res, m.multiSeparator) //split responses by spaces
+	var responses []int
+	if !m.isYN {
+		responses, err = m.resToInt(res)
+		if err != nil {
+			return nil, err
+		}
+
+		err = m.validateResponses(responses)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		responses, err = m.ynResParse(res)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	//Parse responses and return them as options
+	var finalOptions []Opt
+	for _, response := range responses {
+		finalOptions = append(finalOptions, m.options[response])
+	}
+
+	return finalOptions, nil
+}
+
+//Converts the response string to a slice of ints, also validates along the way.
+func (m *Menu) resToInt(res string) ([]int, error) {
+	resStrings := strings.Split(res, m.multiSeparator)
 	//Check if we don't want multiple responses
 	if m.multiFunction == nil && len(resStrings) > 1 {
 		return nil, newMenuError(ErrTooMany, "", m.triesLeft())
@@ -265,29 +321,41 @@ func (m *Menu) ask() ([]Opt, error) {
 		}
 		responses = append(responses, r)
 	}
+	return responses, nil
+}
 
-	//Check if response is in the range of options
-	//If it is make sure it is not duplicated
+func (m *Menu) ynResParse(res string) ([]int, error) {
+	resStrings := strings.Split(res, m.multiSeparator)
+	if len(resStrings) > 1 {
+		return nil, newMenuError(ErrTooMany, "", m.triesLeft())
+	}
+	re := regexp.MustCompile("^(?:([Yy])(?:es|ES)?|([Nn])(?:o|O)?)$")
+	matches := re.FindStringSubmatch(res)
+	if len(matches) < 2 {
+		return nil, newMenuError(ErrInvalid, res, m.triesLeft())
+	}
+	if strings.ToLower(matches[1]) == "y" {
+		return []int{y}, nil
+	}
+	return []int{n}, nil
+}
+
+//Check if response is in the range of options
+//If it is make sure it is not duplicated
+func (m *Menu) validateResponses(responses []int) error {
 	var tmp []int
 	for _, response := range responses {
 		if response < 0 || len(m.options)-1 < response {
-			return nil, newMenuError(ErrInvalid, strconv.Itoa(response), m.triesLeft())
+			return newMenuError(ErrInvalid, strconv.Itoa(response), m.triesLeft())
 		}
 
 		if exist(tmp, response) {
-			return nil, newMenuError(ErrDuplicate, strconv.Itoa(response), m.triesLeft())
+			return newMenuError(ErrDuplicate, strconv.Itoa(response), m.triesLeft())
 		}
 
 		tmp = append(tmp, response)
 	}
-
-	//Parse responses and return them as options
-	var finalOptions []Opt
-	for _, response := range responses {
-		finalOptions = append(finalOptions, m.options[response])
-	}
-
-	return finalOptions, nil
+	return nil
 }
 
 //Simply checks if number exists in the slice
@@ -312,6 +380,7 @@ func (m *Menu) getDefault() []Opt {
 }
 
 //make sure that there is an action available to be called in certain cases
+//returns true if it chould not find an action for the number options available
 func (m *Menu) checkOptAndFunc(opt []Opt) bool {
 	return ((len(opt) == 0 && m.defaultFunction == nil) || (len(opt) == 1 && opt[0].function == nil && m.defaultFunction == nil) || (len(opt) > 1 && m.multiFunction == nil))
 }

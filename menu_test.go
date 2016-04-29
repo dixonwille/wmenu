@@ -63,6 +63,19 @@ var errorCases = []struct {
 	{"\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
 	{"\r\n", nil, nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", true, true},
 }
+var ynCases = []struct {
+	input    string
+	defFunc  func(Opt) error
+	expected string
+	def      int
+}{
+	{"\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "y", 0},
+	{"\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "n", 1},
+	{"YES\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "y", 0},
+	{"n\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "n", 0},
+	{"ahh\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "Invalid response: ahh", 0},
+	{"boo ahh\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "Too many responses", 0},
+}
 
 func Example_simple() {
 	reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
@@ -90,6 +103,25 @@ func Example_simple() {
 	//2) *Option 2
 	//Choose an option.
 	//Option 1 has an id of 1.
+}
+
+func Example_yesNo() {
+	reader := strings.NewReader("y\r\n") //Simulates the user typing "1" and hitting the [enter] key
+	actFunc := func(opt Opt) error {
+		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+		return nil
+	}
+	menu := NewMenu("Would you like to start?")
+	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+	menu.Action(actFunc)
+	menu.IsYesNo(0)
+	err := menu.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	//Output:
+	//Would you like to start?
+	//y has an id of 0.
 }
 
 func Example_simpleDefault() {
@@ -590,6 +622,21 @@ func TestLoopAndTries(t *testing.T) {
 			assert.Equal(t, 0, e.TriesLeft)
 		} else {
 			assert.Fail(t, "Expected to get a general Menu error but instead got no error")
+		}
+	}
+}
+
+func TestYesNo(t *testing.T) {
+	for _, c := range ynCases {
+		stdOut := initTest()
+		reader := strings.NewReader(c.input)
+		menu := NewMenu("Yes or No")
+		menu.ChangeReaderWriter(reader, stdOut, stdOut)
+		menu.IsYesNo(c.def)
+		menu.Action(c.defFunc)
+		err := menu.Run()
+		if err != nil {
+			assert.Equal(t, c.expected, err.Error())
 		}
 	}
 }
