@@ -118,8 +118,8 @@ func (m *Menu) IsYesNo(def int) {
 //isDefault is whether this option is a default option (IE when no options are selected).
 //function is what is called when only this option is selected.
 //If function is nil then it will default to the menu's Action.
-func (m *Menu) Option(title string, isDefault bool, function func() error) {
-	option := newOption(len(m.options), title, isDefault, function)
+func (m *Menu) Option(title string, value string, isDefault bool, function func() error) {
+	option := newOption(len(m.options), title, value, isDefault, function)
 	m.options = append(m.options, *option)
 }
 
@@ -254,8 +254,8 @@ func (m *Menu) print() {
 		}
 	} else {
 		m.options = []Opt{}
-		m.Option("y", m.ynDef == y, nil)
-		m.Option("n", m.ynDef == n, nil)
+		m.Option("y", "", m.ynDef == y, nil)
+		m.Option("n", "", m.ynDef == n, nil)
 	}
 }
 
