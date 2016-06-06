@@ -1,4 +1,4 @@
-# WMenu [![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=master)](https://travis-ci.org/dixonwille/wmenu) [![Go Report Card](https://goreportcard.com/badge/github.com/dixonwille/wmenu)](https://goreportcard.com/report/github.com/dixonwille/wmenu) [![GoDoc](https://godoc.org/github.com/dixonwille/wmenu?status.svg)](https://godoc.org/github.com/dixonwille/wmenu)
+# WMenu[![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=master)](https://travis-ci.org/dixonwille/wmenu)
 
 Package wmenu creates menus for cli programs. It uses wlog for it's interface
 with the command line. It uses os.Stdin, os.Stdout, and os.Stderr with
@@ -8,9 +8,9 @@ type assert if you need to. wmenu will validate all responses before calling any
 
 ## Import
 This allows me to version this package easier and makes sure everyone has a stable release that they want to use. V1 will be depricted so I only have to keep up with one version. If a new version is big enough I might split that to a branch so that I can support more than one release.
-### V1.0.0 - Major Release (Depricted)
+### V1.0.0 - Major Release (Depricted) [![Go Report Card](https://goreportcard.com/badge/gopkg.in/dixonwille/wmenu.v1)](https://goreportcard.com/report/gopkg.in/dixonwille/wmenu.v1) [![GoDoc](https://godoc.org/https://godoc.org/gopkg.in/dixonwille/wmenu.v1?status.svg)](https://godoc.org/gopkg.in/dixonwille/wmenu.v1) [![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=v1.0.0)](https://travis-ci.org/dixonwille/wmenu)
     import "gopkg.in/dixonwille/wmenu.v1"
-### V2.0.0 - Allowing an interface to be passed in for options
+### V2.0.0 - Allowing an interface to be passed in for options [![Go Report Card](https://goreportcard.com/badge/gopkg.in/dixonwille/wmenu.v2)](https://goreportcard.com/report/gopkg.in/dixonwille/wmenu.v2) [![GoDoc](https://godoc.org/https://godoc.org/gopkg.in/dixonwille/wmenu.v2?status.svg)](https://godoc.org/gopkg.in/dixonwille/wmenu.v2) [![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=v2.0.0)](https://travis-ci.org/dixonwille/wmenu)
     import "gopkg.in/dixonwille/wmenu.v2"
 
 
