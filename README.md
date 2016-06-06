@@ -7,6 +7,7 @@ parts of the menu. This package also creates it's own error structure so you can
 type assert if you need to. wmenu will validate all responses before calling any function. It will also figure out which function should be called so you don't have to.
 
 ## Import
+This allows me to version this package easier and makes sure everyone has a stable release that they want to use.
 ### V1.0.0 - Major Release
     import "gopkg.in/dixonwille/wmenu.v1"
 ### V2.0.0 - Allowing an interface to be passed in for options
