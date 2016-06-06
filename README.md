@@ -119,4 +119,8 @@ Now if the user pushes `[ENTER]` the output would be `Options 0 was chosen.`. Bu
 
 
 ## Further Reading
-This whole package has been documented and has a few examples in the [godocs](https://godoc.org/github.com/dixonwille/wmenu). You should read the docs to find all functions and structures at your finger tips.
+This whole package has been documented and has a few examples in:
+* [godocs V1](https://godoc.org/gopkg.in/dixonwille/wmenu.v1)
+* [godocs V2](https://godoc.org/gopkg.in/dixonwille/wmenu.v2)
+
+You should read the docs to find all functions and structures at your finger tips.
