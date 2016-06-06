@@ -114,11 +114,12 @@ func (m *Menu) IsYesNo(def int) {
 }
 
 //Option adds an option to the menu for the user to select from.
+//value is an empty interface that can be used to pass anything through to the function.
 //title is the string the user will select
 //isDefault is whether this option is a default option (IE when no options are selected).
 //function is what is called when only this option is selected.
 //If function is nil then it will default to the menu's Action.
-func (m *Menu) Option(title string, value string, isDefault bool, function func() error) {
+func (m *Menu) Option(title string, value interface{}, isDefault bool, function func() error) {
 	option := newOption(len(m.options), title, value, isDefault, function)
 	m.options = append(m.options, *option)
 }
@@ -253,9 +254,10 @@ func (m *Menu) print() {
 			m.ui.Output(fmt.Sprintf("%d) %s%s", opt.ID, icon, opt.Text))
 		}
 	} else {
+		//TODO Allow user to specify what to use as value for YN options
 		m.options = []Opt{}
-		m.Option("y", "", m.ynDef == y, nil)
-		m.Option("n", "", m.ynDef == n, nil)
+		m.Option("y", "yes", m.ynDef == y, nil)
+		m.Option("n", "no", m.ynDef == n, nil)
 	}
 }
 

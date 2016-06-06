@@ -20,12 +20,15 @@ var defaultIconCases = []string{"", ",", "*", "~", "!", "@"}
 var setTriesCases = []int{0, -4, 5}
 var optionCases = []struct {
 	name     string
-	value    string
+	value    interface{}
 	def      bool
 	function func() error
 }{
 	{"Options", "Options", true, func() error { fmt.Println("testing option"); return nil }},
+	{"", "Options", true, func() error { fmt.Println("testing option"); return nil }},
+	{"Options", "", false, func() error { fmt.Println("testing option"); return nil }},
 	{"", "", false, nil},
+	{"", nil, false, nil},
 }
 var actionCases = []func(Opt) error{
 	func(opt Opt) error { fmt.Println(opt); return nil },
@@ -78,22 +81,32 @@ var ynCases = []struct {
 	{"boo ahh\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "Too many responses", 0},
 }
 
-func Example_simple() {
+func Example_optionValue() {
+	type NameEntity struct {
+		FirstName string
+		LastName  string
+	}
+
 	reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
 	optFunc := func() error {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
 	actFunc := func(opt Opt) error {
+		name, ok := opt.Value.(NameEntity)
+		if !ok {
+			log.Fatal("Could not cast option's value to NameEntity")
+		}
 		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+		fmt.Printf("Hello, %s %s.\n", name.FirstName, name.LastName)
 		return nil
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
 	menu.Action(actFunc)
-	menu.Option("Option 0", "0", true, optFunc)
-	menu.Option("Option 1", "1", false, nil)
-	menu.Option("Option 2", "2", true, nil)
+	menu.Option("Option 0", NameEntity{"Bill", "Bob"}, true, optFunc)
+	menu.Option("Option 1", NameEntity{"John", "Doe"}, false, nil)
+	menu.Option("Option 2", NameEntity{"Jane", "Doe"}, false, nil)
 	err := menu.Run()
 	if err != nil {
 		log.Fatal(err)
@@ -101,15 +114,17 @@ func Example_simple() {
 	//Output:
 	//0) *Option 0
 	//1) Option 1
-	//2) *Option 2
+	//2) Option 2
 	//Choose an option.
 	//Option 1 has an id of 1.
+	//Hello, John Doe.
 }
 
 func Example_yesNo() {
-	reader := strings.NewReader("y\r\n") //Simulates the user typing "1" and hitting the [enter] key
+	reader := strings.NewReader("y\r\n") //Simulates the user typing "y" and hitting the [enter] key
 	actFunc := func(opt Opt) error {
 		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+		fmt.Printf("But has a value of %s.\n", opt.Value.(string))
 		return nil
 	}
 	menu := NewMenu("Would you like to start?")
@@ -123,6 +138,7 @@ func Example_yesNo() {
 	//Output:
 	//Would you like to start? (Y/n)
 	//y has an id of 0.
+	//But has a value of yes.
 }
 
 func Example_simpleDefault() {
@@ -380,6 +396,7 @@ func TestOption(t *testing.T) {
 		assert.Equal(i, menu.options[i].ID)
 		assert.Equal(c.name, menu.options[i].Text)
 		assert.Equal(c.def, menu.options[i].isDefault)
+		assert.Equal(c.value, menu.options[i].Value)
 		if c.function != nil {
 			assert.NotNil(menu.options[i].function)
 		} else {

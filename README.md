@@ -7,7 +7,11 @@ parts of the menu. This package also creates it's own error structure so you can
 type assert if you need to. wmenu will validate all responses before calling any function. It will also figure out which function should be called so you don't have to.
 
 ## Import
-    import "github.com/dixonwille/wmenu"
+### V1.0.0 - Major Release
+    import "gopkg.in/dixonwille/wmenu.v1"
+### V2.0.0 - Allowing an interface to be passed in for options
+    import "gopkg.in/dixonwille/wmenu.v2"
+
 
 ## Features
 * Force single selection
@@ -28,14 +32,17 @@ type assert if you need to. wmenu will validate all responses before calling any
 * Clear the screen whenever the menu is brought up
 * Has its own error structure so you can type assert menu errors
 
+### V2 - Adds these Features
+* Allowing any interface to be passed through for the options.
+
 ## Usage
-This is a simple use of the package.
+This is a simple use of the package. (**NOTE: THIS IS A V2 SAMPLE**)
 ``` go
 menu := wmenu.NewMenu("What is your favorite food?")
 menu.Action(func (opt Opt) error {fmt.Printf(opt.Text + " is your favorite food."); return nil})
-menu.Option("Pizza", true, nil)
-menu.Option("Ice Cream", false, nil)
-menu.Option("Tacos", false, func() error {
+menu.Option("Pizza", nil, true, nil)
+menu.Option("Ice Cream", nil, false, nil)
+menu.Option("Tacos", nil, false, func() error {
   fmt.Printf("Tacos are great")
 })
 err := menu.Run()
@@ -66,6 +73,49 @@ Another feature is the ability to ask yes or no questions.
 menu.IsYesNo(0)
 ```
 This will remove any options previously added options and hide the ones used for the menu. It will simply just ask yes or no. Menu will parse and validate the response for you. This option will always call the Action's function and pass in the option that was selected.
+
+## V2 - Release
+Allows the user to pass anything for the value so it can be retrieved later in the function. The following is to show case the power of this.
+```go
+type NameEntity struct {
+  FirstName string
+  LastName  string
+}
+
+optFunc := func() error {
+  fmt.Println("Option 0 was chosen.")
+  return nil
+}
+actFunc := func(opt Opt) error {
+  name, ok := opt.Value.(NameEntity)
+  if !ok {
+    log.Fatal("Could not cast option's value to NameEntity")
+  }
+  fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+  fmt.Printf("Hello, %s %s.\n", name.FirstName, name.LastName)
+  return nil
+}
+menu := NewMenu("Choose an option.")
+menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
+menu.Action(actFunc)
+menu.Option("Option 0", NameEntity{"Bill", "Bob"}, true, optFunc)
+menu.Option("Option 1", NameEntity{"John", "Doe"}, false, nil)
+menu.Option("Option 2", NameEntity{"Jane", "Doe"}, false, nil)
+err := menu.Run()
+if err != nil {
+  log.Fatal(err)
+}
+```
+The immediate output would be:
+```
+Output:
+0) *Option 0
+1) Option 1
+2) Option 2
+Choose an option.
+```
+Now if the user pushes `[ENTER]` the output would be `Options 0 was chosen.`. But now if either option 1 or 2 were chosen it would cast the options value to a NameEntity allowing the function to be able to gather both the first name and last name of the NameEntity. If you want though you can just pass in `nil` as the value or even a string (`"hello"`) since both of these implement the empty interface required by value. Just make sure to cast the values so you can use them appropriately.
+
 
 ## Further Reading
 This whole package has been documented and has a few examples in the [godocs](https://godoc.org/github.com/dixonwille/wmenu). You should read the docs to find all functions and structures at your finger tips.
