@@ -119,7 +119,7 @@ func (m *Menu) IsYesNo(def int) {
 //isDefault is whether this option is a default option (IE when no options are selected).
 //function is what is called when only this option is selected.
 //If function is nil then it will default to the menu's Action.
-func (m *Menu) Option(title string, value interface{}, isDefault bool, function func() error) {
+func (m *Menu) Option(title string, value interface{}, isDefault bool, function func(Opt) error) {
 	option := newOption(len(m.options), title, value, isDefault, function)
 	m.options = append(m.options, *option)
 }
@@ -201,7 +201,7 @@ func (m *Menu) callAppropriate(options []Opt) (err error) {
 				return err
 			}
 		} else {
-			if err := options[0].function(); err != nil {
+			if err := options[0].function(options[0]); err != nil {
 				return err
 			}
 		}
@@ -230,7 +230,7 @@ func (m *Menu) callAppropriateNoOptions() (err error) {
 				return err
 			}
 		} else {
-			if err := opt[0].function(); err != nil {
+			if err := opt[0].function(opt[0]); err != nil {
 				return err
 			}
 		}

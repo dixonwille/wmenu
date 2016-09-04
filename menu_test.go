@@ -22,11 +22,11 @@ var optionCases = []struct {
 	name     string
 	value    interface{}
 	def      bool
-	function func() error
+	function func(Opt) error
 }{
-	{"Options", "Options", true, func() error { fmt.Println("testing option"); return nil }},
-	{"", "Options", true, func() error { fmt.Println("testing option"); return nil }},
-	{"Options", "", false, func() error { fmt.Println("testing option"); return nil }},
+	{"Options", "Options", true, func(Opt) error { fmt.Println("testing option"); return nil }},
+	{"", "Options", true, func(Opt) error { fmt.Println("testing option"); return nil }},
+	{"Options", "", false, func(Opt) error { fmt.Println("testing option"); return nil }},
 	{"", "", false, nil},
 	{"", nil, false, nil},
 }
@@ -52,17 +52,17 @@ var addColorCases = []struct {
 }
 var errorCases = []struct {
 	input         string
-	optFunction   func() error
+	optFunction   func(option Opt) error
 	defFunction   func(Opt) error
 	multiFunction func([]Opt) error
 	expected      string
 	singDef       bool
 	multiDef      bool
 }{
-	{"0\r\n", func() error { return errors.New("Oops") }, nil, nil, "Oops", false, false},
+	{"0\r\n", func(option Opt) error { return errors.New("Oops") }, nil, nil, "Oops", false, false},
 	{"0\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
 	{"0 1\r\n", nil, nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
-	{"\r\n", func() error { return errors.New("Oops") }, nil, nil, "Oops", true, false},
+	{"\r\n", func(option Opt) error { return errors.New("Oops") }, nil, nil, "Oops", true, false},
 	{"\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", true, false},
 	{"\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
 	{"\r\n", nil, nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", true, true},
@@ -88,7 +88,7 @@ func Example_optionValue() {
 	}
 
 	reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
@@ -143,7 +143,7 @@ func Example_yesNo() {
 
 func Example_simpleDefault() {
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		fmt.Fprint(os.Stdout, "Option 0 was chosen.")
 		return nil
 	}
@@ -166,7 +166,7 @@ func Example_simpleDefault() {
 
 func Example_multiple() {
 	reader := strings.NewReader("1,2\r\n") //Simulates the user typing "1,2" and hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
@@ -198,7 +198,7 @@ func Example_multiple() {
 
 func Example_multipleDefault() {
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
@@ -229,7 +229,7 @@ func Example_multipleDefault() {
 
 func Example_errorNoResponse() {
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
@@ -256,7 +256,7 @@ func Example_errorNoResponse() {
 
 func Example_errorInvalid() {
 	reader := strings.NewReader("3\r\n") //Simulates the user typing "3" and hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
@@ -283,7 +283,7 @@ func Example_errorInvalid() {
 
 func Example_errorTooMany() {
 	reader := strings.NewReader("1 2\r\n") //Simulates the user typing "1 2" and hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
@@ -310,7 +310,7 @@ func Example_errorTooMany() {
 
 func Example_errorDuplicate() {
 	reader := strings.NewReader("1 1\r\n") //Simulates the user typing "1 1" and hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
@@ -449,7 +449,7 @@ func TestSetDefaultIcon(t *testing.T) {
 func TestClearInAsk(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("1\r\n") //Simulates the user typing "1" and hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		assert.Fail(t, "Should not have called Option 0's function")
 		return nil
 	}
@@ -476,7 +476,7 @@ func TestClearInAsk(t *testing.T) {
 func TestDefaultAction(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
@@ -500,7 +500,7 @@ func TestDefaultAction(t *testing.T) {
 func TestDefaultActionWithDefaultOption(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("\r\n") //Simulates the user hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
@@ -526,7 +526,7 @@ func TestDefaultActionWithDefaultOption(t *testing.T) {
 func TestOptionsFunction(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("0\r\n") //Simulates the user typing "0" and hitting the [enter] key
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		return nil
 	}
 	actFunc := func(opt Opt) error {
@@ -548,7 +548,7 @@ func TestOptionsFunction(t *testing.T) {
 func TestWlogAskErr(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("1") //Simulates the user typing "1" without hitting [enter]. Can't happen when reader is os.Stdin
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
@@ -573,7 +573,7 @@ func TestWlogAskErr(t *testing.T) {
 func TestLetterForResponse(t *testing.T) {
 	stdOut := initTest()
 	reader := strings.NewReader("a\r\n") //Simulates the user typing "a" and hitting [enter].
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
@@ -620,7 +620,7 @@ func TestActionError(t *testing.T) {
 
 func TestLoopAndTries(t *testing.T) {
 	stdOut := initTest()
-	optFunc := func() error {
+	optFunc := func(option Opt) error {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
