@@ -40,7 +40,7 @@ This allows me to version this package easier and makes sure everyone has a stab
 This is a simple use of the package. (**NOTE: THIS IS A V2 SAMPLE**)
 ``` go
 menu := wmenu.NewMenu("What is your favorite food?")
-menu.Action(func (opt Opt) error {fmt.Printf(opt.Text + " is your favorite food."); return nil})
+menu.Action(func (opt wmenu.Opt) error {fmt.Printf(opt.Text + " is your favorite food."); return nil})
 menu.Option("Pizza", nil, true, nil)
 menu.Option("Ice Cream", nil, false, nil)
 menu.Option("Tacos", nil, false, func() error {
@@ -87,7 +87,7 @@ optFunc := func() error {
   fmt.Println("Option 0 was chosen.")
   return nil
 }
-actFunc := func(opt Opt) error {
+actFunc := func(opt wmenu.Opt) error {
   name, ok := opt.Value.(NameEntity)
   if !ok {
     log.Fatal("Could not cast option's value to NameEntity")
