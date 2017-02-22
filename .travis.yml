@@ -1,9 +1,6 @@
 language: go
 go:
   - tip
-branches:
-  only:
-    - master
 before_install:
   - go get github.com/kardianos/govendor
 install:
