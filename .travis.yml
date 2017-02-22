@@ -5,3 +5,9 @@ branches:
   only:
     - master
     - /^feature-.*$/
+before_install:
+  - go get github.com/kardianos/govendor
+install:
+  - go get -v -d github.com/dixonwille/wmenu
+  - govendor sync
+  - govendor list
