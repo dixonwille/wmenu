@@ -7,14 +7,27 @@ parts of the menu. This package also creates it's own error structure so you can
 type assert if you need to. wmenu will validate all responses before calling any function. It will also figure out which function should be called so you don't have to.
 
 ## Import
-This allows me to version this package easier and makes sure everyone has a stable release that they want to use. V1 will be depricted so I only have to keep up with one version. If a new version is big enough I might split that to a branch so that I can support more than one release.
-### V1.0.0 - Major Release (Depricted) [![Go Report Card](https://goreportcard.com/badge/gopkg.in/dixonwille/wmenu.v1)](https://goreportcard.com/report/gopkg.in/dixonwille/wmenu.v1) [![GoDoc](https://godoc.org/https://godoc.org/gopkg.in/dixonwille/wmenu.v1?status.svg)](https://godoc.org/gopkg.in/dixonwille/wmenu.v1) [![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=v1.0.0)](https://travis-ci.org/dixonwille/wmenu)
-    import "gopkg.in/dixonwille/wmenu.v1"
-### V2.0.0 - Allowing an interface to be passed in for options [![Go Report Card](https://goreportcard.com/badge/gopkg.in/dixonwille/wmenu.v2)](https://goreportcard.com/report/gopkg.in/dixonwille/wmenu.v2) [![GoDoc](https://godoc.org/https://godoc.org/gopkg.in/dixonwille/wmenu.v2?status.svg)](https://godoc.org/gopkg.in/dixonwille/wmenu.v2) [![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=v2.0.0)](https://travis-ci.org/dixonwille/wmenu)
-    import "gopkg.in/dixonwille/wmenu.v2"
+
+I try and keep up with my tags. To use the version and stable it is recommended to use `govendor` or another vendoring tool that allows you to build your project for specific tags.
+
+```
+govendor fetch github.com/dixonwille/wmenu@v3
+```
+
+The above will grab the latest v3 at that time and mark it. It will then be stable for you to use.
+
+I will try to support as many versions as possable but please be patient.
+
+### V1.0.0 - Major Release [![Go Report Card](https://goreportcard.com/badge/gopkg.in/dixonwille/wmenu.v1)](https://goreportcard.com/report/gopkg.in/dixonwille/wmenu.v1) [![GoDoc](https://godoc.org/https://godoc.org/gopkg.in/dixonwille/wmenu.v1?status.svg)](https://godoc.org/gopkg.in/dixonwille/wmenu.v1)
+
+### V2.0.0 - Allowing an interface to be passed in for options [![Go Report Card](https://goreportcard.com/badge/gopkg.in/dixonwille/wmenu.v2)](https://goreportcard.com/report/gopkg.in/dixonwille/wmenu.v2) [![GoDoc](https://godoc.org/https://godoc.org/gopkg.in/dixonwille/wmenu.v2?status.svg)](https://godoc.org/gopkg.in/dixonwille/wmenu.v2)
+
+### V3.0.0 - Pass in the option to that option's function [![Go Report Card](https://goreportcard.com/badge/gopkg.in/dixonwille/wmenu.v3)](https://goreportcard.com/report/gopkg.in/dixonwille/wmenu.v2) [![GoDoc](https://godoc.org/https://godoc.org/gopkg.in/dixonwille/wmenu.v2?status.svg)](https://godoc.org/gopkg.in/dixonwille/wmenu.v3)
+
 
 
 ## Features
+
 * Force single selection
 * Allow multiple selection
 * Change the delimiter
@@ -34,10 +47,15 @@ This allows me to version this package easier and makes sure everyone has a stab
 * Has its own error structure so you can type assert menu errors
 
 ### V2 - Adds these Features
+
 * Allowing any interface to be passed through for the options.
 
+### V3 - Add these Features
+
+* Pass the option chosen to that options function
+
 ## Usage
-This is a simple use of the package. (**NOTE: THIS IS A V2 SAMPLE**)
+This is a simple use of the package. (**NOTE: THIS IS A V3 SAMPLE**)
 ``` go
 menu := wmenu.NewMenu("What is your favorite food?")
 menu.Action(func (opt wmenu.Opt) error {fmt.Printf(opt.Text + " is your favorite food."); return nil})
@@ -75,7 +93,7 @@ menu.IsYesNo(0)
 ```
 This will remove any options previously added options and hide the ones used for the menu. It will simply just ask yes or no. Menu will parse and validate the response for you. This option will always call the Action's function and pass in the option that was selected.
 
-## V2 - Release
+## V3 - Release
 Allows the user to pass anything for the value so it can be retrieved later in the function. The following is to show case the power of this.
 ```go
 type NameEntity struct {
@@ -83,7 +101,7 @@ type NameEntity struct {
   LastName  string
 }
 
-optFunc := func() error {
+optFunc := func(opt wmenu.Opt) error {
   fmt.Println("Option 0 was chosen.")
   return nil
 }
@@ -122,5 +140,6 @@ Now if the user pushes `[ENTER]` the output would be `Options 0 was chosen.`. Bu
 This whole package has been documented and has a few examples in:
 * [godocs V1](https://godoc.org/gopkg.in/dixonwille/wmenu.v1)
 * [godocs V2](https://godoc.org/gopkg.in/dixonwille/wmenu.v2)
+* [godocs V2](https://godoc.org/gopkg.in/dixonwille/wmenu.v3)
 
 You should read the docs to find all functions and structures at your finger tips.
