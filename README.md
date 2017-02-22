@@ -1,4 +1,4 @@
-# WMenu [![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=master)](https://travis-ci.org/dixonwille/wmenu) [![Go Report Card](https://goreportcard.com/badge/github.com/dixonwille/wmenu)](https://goreportcard.com/report/github.com/dixonwille/wmenu) [![GoDoc](https://godoc.org/github.com/dixonwille/wmenu?status.svg)](https://godoc.org/github.com/dixonwille/wmenu)
+# WMenu [![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=v1)](https://travis-ci.org/dixonwille/wmenu) [![Go Report Card](https://goreportcard.com/badge/github.com/dixonwille/wmenu)](https://goreportcard.com/report/github.com/dixonwille/wmenu) [![GoDoc](https://godoc.org/github.com/dixonwille/wmenu?status.svg)](https://godoc.org/github.com/dixonwille/wmenu)
 
 Package wmenu creates menus for cli programs. It uses wlog for it's interface
 with the command line. It uses os.Stdin, os.Stdout, and os.Stderr with
