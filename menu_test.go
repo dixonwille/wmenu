@@ -73,8 +73,24 @@ var ynCases = []struct {
 	{"\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "n", 1},
 	{"YES\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "y", 0},
 	{"n\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "n", 0},
+	{" Yes \r\n", func(opt Opt) error { return errors.New(opt.Text) }, "y", 0},
 	{"ahh\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "Invalid response: ahh", 0},
 	{"boo ahh\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "Too many responses", 0},
+}
+var trimCases = []struct {
+	input    string
+	del      string
+	expected string
+}{
+	{"0 \r\n", " ", "0\r\n"},
+	{" 0\r\n", " ", "0\r\n"},
+	{" 0 \r\n", " ", "0\r\n"},
+	{"0 1 \r\n", " ", "0 1\r\n"},
+	{" 0 1\r\n", " ", "0 1\r\n"},
+	{" 0 1 \r\n", " ", "0 1\r\n"},
+	{" 0, 1 \r\n", ",", "0 1\r\n"},
+	{"0, 1,\r\n", ",", "0 1\r\n"},
+	{"0, 1, \r\n", ",", "0 1\r\n"},
 }
 
 func Example_simple() {
@@ -638,6 +654,40 @@ func TestYesNo(t *testing.T) {
 		if err != nil {
 			assert.Equal(t, c.expected, err.Error())
 		}
+	}
+}
+
+func TestTrim(t *testing.T) {
+	for _, c := range trimCases {
+		stdOut := initTest()
+		actOut := initTest()
+		reader := strings.NewReader(c.input)
+		menu := NewMenu("Testing")
+		menu.ChangeReaderWriter(reader, stdOut, stdOut)
+		menu.SetSeparator(c.del)
+		menu.Action(func(opt Opt) error {
+			fmt.Fprintf(actOut, "%s\r\n", opt.Text)
+			return nil
+		})
+		menu.MultipleAction(func(opts []Opt) error {
+			var actual []string
+			for _, opt := range opts {
+				actual = append(actual, opt.Text)
+			}
+			fmt.Fprintf(actOut, "%s\r\n", strings.Join(actual, " "))
+			return nil
+		})
+		menu.Option("0", nil, false, nil)
+		menu.Option("1", nil, false, nil)
+		err := menu.Run()
+		if err != nil {
+			assert.Fail(t, err.Error())
+		}
+		act, err := actOut.ReadString((byte)('\n'))
+		if err != nil {
+			assert.Fail(t, err.Error())
+		}
+		assert.Equal(t, c.expected, act)
 	}
 }
 

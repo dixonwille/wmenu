@@ -16,12 +16,12 @@
 			"revisionTime": "2016-12-24T03:39:00Z"
 		},
 		{
-			"checksumSHA1": "zfzo1r5s2n/6mAErpPXquuV2SV0=",
+			"checksumSHA1": "1sQjU2O3EZVy3cZF50GYrNzP8Qw=",
 			"path": "github.com/dixonwille/wlog",
-			"revision": "07f197957ec271c3d2737f2c20541c430b35fd5d",
-			"revisionTime": "2016-04-22T04:07:55Z",
-			"version": "v1",
-			"versionExact": "v1.0.0"
+			"revision": "76a8811f69dff5d130c6b5f0342451b0beb52f37",
+			"revisionTime": "2017-02-22T03:43:20Z",
+			"version": "v2",
+			"versionExact": "v2.0.0"
 		},
 		{
 			"checksumSHA1": "zKKp5SZ3d3ycKe4EKMNT0BqAWBw=",
