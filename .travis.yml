@@ -6,4 +6,4 @@ before_install:
 install:
   - go get -v -t -d github.com/dixonwille/wmenu
   - govendor sync
-- govendor list
+  - govendor list
