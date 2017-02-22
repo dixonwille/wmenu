@@ -3,12 +3,44 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "OFu4xJEIjiI8Suu+j/gabfp+y6Q=",
+			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
+			"revisionTime": "2017-01-30T11:31:45Z"
+		},
+		{
+			"checksumSHA1": "LrhsetLzLosEAwqJ+TzG84ZqBcc=",
+			"path": "github.com/daviddengcn/go-colortext",
+			"revision": "805cee6e0d43c72ba1d4e3275965ff41e0da068a",
+			"revisionTime": "2016-12-24T03:39:00Z"
+		},
+		{
 			"checksumSHA1": "zfzo1r5s2n/6mAErpPXquuV2SV0=",
 			"path": "github.com/dixonwille/wlog",
 			"revision": "07f197957ec271c3d2737f2c20541c430b35fd5d",
 			"revisionTime": "2016-04-22T04:07:55Z",
 			"version": "v1",
 			"versionExact": "v1.0.0"
+		},
+		{
+			"checksumSHA1": "zKKp5SZ3d3ycKe4EKMNT0BqAWBw=",
+			"origin": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
+			"revisionTime": "2017-01-30T11:31:45Z"
+		},
+		{
+			"checksumSHA1": "JXUVA1jky8ZX8w09p2t5KLs97Nc=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
+			"revisionTime": "2017-01-30T11:31:45Z"
+		},
+		{
+			"checksumSHA1": "2PpOCNkWnshDrXeCVH2kp3VHhIM=",
+			"path": "github.com/stretchr/testify/require",
+			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
+			"revisionTime": "2017-01-30T11:31:45Z"
 		}
 	],
 	"rootPath": "github.com/dixonwille/wmenu"
