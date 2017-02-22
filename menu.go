@@ -269,7 +269,13 @@ func (m *Menu) ask() ([]Opt, error) {
 			m.question += " (y/N)"
 		}
 	}
-	res, err := m.ui.Ask(m.question)
+	trim := ""
+	if m.multiSeparator == " " {
+		trim = m.multiSeparator
+	} else {
+		trim = m.multiSeparator + " "
+	}
+	res, err := m.ui.Ask(m.question, trim)
 	if err != nil {
 		return nil, err
 	}
@@ -323,6 +329,7 @@ func (m *Menu) resToInt(res string) ([]int, error) {
 	var responses []int
 	for _, response := range resStrings {
 		//Check if it is an intiger
+		response = strings.Trim(response, " ")
 		r, err := strconv.Atoi(response)
 		if err != nil {
 			return nil, newMenuError(ErrInvalid, response, m.triesLeft())
@@ -337,7 +344,7 @@ func (m *Menu) ynResParse(res string) ([]int, error) {
 	if len(resStrings) > 1 {
 		return nil, newMenuError(ErrTooMany, "", m.triesLeft())
 	}
-	re := regexp.MustCompile("^(?:([Yy])(?:es|ES)?|([Nn])(?:o|O)?)$")
+	re := regexp.MustCompile("^\\s*(?:([Yy])(?:es|ES)?|([Nn])(?:o|O)?)\\s*$")
 	matches := re.FindStringSubmatch(res)
 	if len(matches) < 2 {
 		return nil, newMenuError(ErrInvalid, res, m.triesLeft())
