@@ -677,8 +677,8 @@ func TestTrim(t *testing.T) {
 			fmt.Fprintf(actOut, "%s\r\n", strings.Join(actual, " "))
 			return nil
 		})
-		menu.Option("0", nil, false, nil)
-		menu.Option("1", nil, false, nil)
+		menu.Option("0", false, nil)
+		menu.Option("1", false, nil)
 		err := menu.Run()
 		if err != nil {
 			assert.Fail(t, err.Error())
