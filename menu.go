@@ -200,7 +200,7 @@ func (m *Menu) callAppropriate(options []Opt) (err error) {
 func (m *Menu) callAppropriateNoOptions() (err error) {
 	options := m.getDefault()
 	if len(options) == 0 {
-		return m.function([]Opt{Opt{ID: -1}})
+		return m.function([]Opt{{ID: -1}})
 	}
 	if len(options) == 1 && options[0].function != nil {
 		return options[0].function(options[0])
