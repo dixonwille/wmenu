@@ -26,18 +26,18 @@ const (
 //Menu is used to display options to a user.
 //A user can then select options and Menu will validate the response and perform the correct action.
 type Menu struct {
-	question        string
-	defaultFunction func(Opt) error
-	options         []Opt
-	ui              wlog.UI
-	multiSeparator  string
-	multiFunction   func([]Opt) error
-	loopOnInvalid   bool
-	clear           bool
-	tries           int
-	defIcon         string
-	isYN            bool
-	ynDef           int
+	question       string
+	function       func([]Opt) error
+	options        []Opt
+	ui             wlog.UI
+	multiSeparator string
+	allowMultiple  bool
+	loopOnInvalid  bool
+	clear          bool
+	tries          int
+	defIcon        string
+	isYN           bool
+	ynDef          int
 }
 
 //NewMenu creates a menu with a wlog.UI as the writer.
@@ -48,18 +48,18 @@ func NewMenu(question string) *Menu {
 	ui = wlog.AddConcurrent(ui)
 
 	return &Menu{
-		question:        question,
-		defaultFunction: nil,
-		options:         nil,
-		ui:              ui,
-		multiSeparator:  " ",
-		multiFunction:   nil,
-		loopOnInvalid:   false,
-		clear:           false,
-		tries:           3,
-		defIcon:         "*",
-		isYN:            false,
-		ynDef:           0,
+		question:       question,
+		function:       nil,
+		options:        nil,
+		ui:             ui,
+		multiSeparator: " ",
+		allowMultiple:  false,
+		loopOnInvalid:  false,
+		clear:          false,
+		tries:          3,
+		defIcon:        "*",
+		isYN:           false,
+		ynDef:          0,
 	}
 }
 
@@ -127,15 +127,14 @@ func (m *Menu) Option(title string, value interface{}, isDefault bool, function 
 //Action adds a default action to use in certain scenarios.
 //If the selected option (by default or user selected) does not have a function applied to it this will be called.
 //If there are no default options and no option was selected this will be called with an option that has an ID of -1.
-func (m *Menu) Action(function func(Opt) error) {
-	m.defaultFunction = function
+func (m *Menu) Action(function func([]Opt) error) {
+	m.function = function
 }
 
-//MultipleAction is called when multiple options are selected (by default or user selected).
-//If this is set then it uses the separator string specified by SetSeparator (Default is a space) to separate the responses.
-//If this is not set then it is implied that the menu only allows for one option to be selected.
-func (m *Menu) MultipleAction(function func([]Opt) error) {
-	m.multiFunction = function
+//AllowMultiple will tell the menu to allow multiple selections.
+//The menu will fail if this is not called and mulple selections were selected.
+func (m *Menu) AllowMultiple() {
+	m.allowMultiple = true
 }
 
 //ChangeReaderWriter changes where the menu listens and writes to.
@@ -189,58 +188,24 @@ func (m *Menu) Run() error {
 }
 
 func (m *Menu) callAppropriate(options []Opt) (err error) {
-	switch len(options) {
-	//if no options go through options and look for default options
-	case 0:
+	if len(options) == 0 {
 		return m.callAppropriateNoOptions()
-		//if there is one option call it's funciton if it exist
-		//if it does not, call the menu's defaultFunction
-	case 1:
-		if options[0].function == nil {
-			if err := m.defaultFunction(options[0]); err != nil {
-				return err
-			}
-		} else {
-			if err := options[0].function(options[0]); err != nil {
-				return err
-			}
-		}
-		//if there is more than one option call the menu's multiFunction
-	default:
-		if err := m.multiFunction(options); err != nil {
-			return err
-		}
 	}
-	return nil
+	if len(options) == 1 && options[0].function != nil {
+		return options[0].function(options[0])
+	}
+	return m.function(options)
 }
 
 func (m *Menu) callAppropriateNoOptions() (err error) {
-	opt := m.getDefault()
-	switch len(opt) {
-	//if there are no default options call the defaultFunction of the menu
-	case 0:
-		if err := m.defaultFunction(Opt{ID: -1}); err != nil {
-			return err
-		}
-		//if there is one default option call it's function if it exist
-		//if it does not, call the menu's defaultFunction
-	case 1:
-		if opt[0].function == nil {
-			if err := m.defaultFunction(opt[0]); err != nil {
-				return err
-			}
-		} else {
-			if err := opt[0].function(opt[0]); err != nil {
-				return err
-			}
-		}
-		//if there is more than one default option call the menu's multiFunction
-	default:
-		if err := m.multiFunction(opt); err != nil {
-			return err
-		}
+	options := m.getDefault()
+	if len(options) == 0 {
+		return m.function([]Opt{Opt{ID: -1}})
 	}
-	return nil
+	if len(options) == 1 && options[0].function != nil {
+		return options[0].function(options[0])
+	}
+	return m.function(options)
 }
 
 //hide options when this is a yes or no
@@ -284,7 +249,7 @@ func (m *Menu) ask() ([]Opt, error) {
 	if res == "" {
 		//get default options
 		opt := m.getDefault()
-		if m.checkOptAndFunc(opt) {
+		if !m.validOptAndFunc(opt) {
 			return nil, newMenuError(ErrNoResponse, "", m.triesLeft())
 		}
 		return nil, nil
@@ -321,7 +286,7 @@ func (m *Menu) ask() ([]Opt, error) {
 func (m *Menu) resToInt(res string) ([]int, error) {
 	resStrings := strings.Split(res, m.multiSeparator)
 	//Check if we don't want multiple responses
-	if m.multiFunction == nil && len(resStrings) > 1 {
+	if !m.allowMultiple && len(resStrings) > 1 {
 		return nil, newMenuError(ErrTooMany, "", m.triesLeft())
 	}
 
@@ -395,9 +360,15 @@ func (m *Menu) getDefault() []Opt {
 }
 
 //make sure that there is an action available to be called in certain cases
-//returns true if it chould not find an action for the number options available
-func (m *Menu) checkOptAndFunc(opt []Opt) bool {
-	return ((len(opt) == 0 && m.defaultFunction == nil) || (len(opt) == 1 && opt[0].function == nil && m.defaultFunction == nil) || (len(opt) > 1 && m.multiFunction == nil))
+//returns false if it chould not find an action for the number options available
+func (m *Menu) validOptAndFunc(opt []Opt) bool {
+	if m.function == nil {
+		if len(opt) == 1 && opt[0].function != nil {
+			return true
+		}
+		return false
+	}
+	return true
 }
 
 func (m *Menu) triesLeft() int {

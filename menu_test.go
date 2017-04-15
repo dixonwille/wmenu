@@ -30,11 +30,7 @@ var optionCases = []struct {
 	{"", "", false, nil},
 	{"", nil, false, nil},
 }
-var actionCases = []func(Opt) error{
-	func(opt Opt) error { fmt.Println(opt); return nil },
-	nil,
-}
-var multipleActionCases = []func([]Opt) error{
+var actionCases = []func([]Opt) error{
 	func(opts []Opt) error { fmt.Println(opts); return nil },
 	nil,
 }
@@ -51,35 +47,34 @@ var addColorCases = []struct {
 	{wlog.BrightRed, wlog.BrightWhite, wlog.BrightYellow, wlog.BrightMagenta},
 }
 var errorCases = []struct {
-	input         string
-	optFunction   func(option Opt) error
-	defFunction   func(Opt) error
-	multiFunction func([]Opt) error
-	expected      string
-	singDef       bool
-	multiDef      bool
+	input       string
+	optFunction func(option Opt) error
+	defFunction func([]Opt) error
+	expected    string
+	singDef     bool
+	multiDef    bool
 }{
-	{"0\r\n", func(option Opt) error { return errors.New("Oops") }, nil, nil, "Oops", false, false},
-	{"0\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
-	{"0 1\r\n", nil, nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
-	{"\r\n", func(option Opt) error { return errors.New("Oops") }, nil, nil, "Oops", true, false},
-	{"\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", true, false},
-	{"\r\n", nil, func(opt Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
-	{"\r\n", nil, nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", true, true},
+	{"0\r\n", func(option Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
+	{"0\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
+	{"0 1\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
+	{"\r\n", func(option Opt) error { return errors.New("Oops") }, nil, "Oops", true, false},
+	{"\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", true, false},
+	{"\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
+	{"\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", true, true},
 }
 var ynCases = []struct {
 	input    string
-	defFunc  func(Opt) error
+	defFunc  func([]Opt) error
 	expected string
 	def      int
 }{
-	{"\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "y", 0},
-	{"\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "n", 1},
-	{"YES\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "y", 0},
-	{"n\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "n", 0},
-	{" Yes \r\n", func(opt Opt) error { return errors.New(opt.Text) }, "y", 0},
-	{"ahh\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "Invalid response: ahh", 0},
-	{"boo ahh\r\n", func(opt Opt) error { return errors.New(opt.Text) }, "Too many responses", 0},
+	{"\r\n", func(opts []Opt) error { return errors.New(opts[0].Text) }, "y", 0},
+	{"\r\n", func(opts []Opt) error { return errors.New(opts[0].Text) }, "n", 1},
+	{"YES\r\n", func(opts []Opt) error { return errors.New(opts[0].Text) }, "y", 0},
+	{"n\r\n", func(opts []Opt) error { return errors.New(opts[0].Text) }, "n", 0},
+	{" Yes \r\n", func(opts []Opt) error { return errors.New(opts[0].Text) }, "y", 0},
+	{"ahh\r\n", func(opts []Opt) error { return errors.New(opts[0].Text) }, "Invalid response: ahh", 0},
+	{"boo ahh\r\n", func(opts []Opt) error { return errors.New(opts[0].Text) }, "Too many responses", 0},
 }
 var trimCases = []struct {
 	input    string
@@ -108,12 +103,12 @@ func Example_optionValue() {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
-	actFunc := func(opt Opt) error {
-		name, ok := opt.Value.(NameEntity)
+	actFunc := func(opts []Opt) error {
+		name, ok := opts[0].Value.(NameEntity)
 		if !ok {
 			log.Fatal("Could not cast option's value to NameEntity")
 		}
-		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
+		fmt.Printf("%s has an id of %d.\n", opts[0].Text, opts[0].ID)
 		fmt.Printf("Hello, %s %s.\n", name.FirstName, name.LastName)
 		return nil
 	}
@@ -138,9 +133,9 @@ func Example_optionValue() {
 
 func Example_yesNo() {
 	reader := strings.NewReader("y\r\n") //Simulates the user typing "y" and hitting the [enter] key
-	actFunc := func(opt Opt) error {
-		fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
-		fmt.Printf("But has a value of %s.\n", opt.Value.(string))
+	actFunc := func(opts []Opt) error {
+		fmt.Printf("%s has an id of %d.\n", opts[0].Text, opts[0].ID)
+		fmt.Printf("But has a value of %s.\n", opts[0].Value.(string))
 		return nil
 	}
 	menu := NewMenu("Would you like to start?")
@@ -186,7 +181,7 @@ func Example_multiple() {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
-	multiFunc := func(opts []Opt) error {
+	actFunc := func(opts []Opt) error {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
@@ -194,7 +189,8 @@ func Example_multiple() {
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
-	menu.MultipleAction(multiFunc)
+	menu.Action(actFunc)
+	menu.AllowMultiple()
 	menu.SetSeparator(",")
 	menu.Option("Option 0", "0", true, optFunc)
 	menu.Option("Option 1", "1", false, nil)
@@ -218,7 +214,7 @@ func Example_multipleDefault() {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
-	multiFunc := func(opts []Opt) error {
+	actFunc := func(opts []Opt) error {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
@@ -226,7 +222,8 @@ func Example_multipleDefault() {
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
-	menu.MultipleAction(multiFunc)
+	menu.Action(actFunc)
+	menu.AllowMultiple()
 	menu.Option("Option 0", "0", true, optFunc)
 	menu.Option("Option 1", "1", false, nil)
 	menu.Option("Option 2", "2", true, nil)
@@ -330,7 +327,7 @@ func Example_errorDuplicate() {
 		fmt.Println("Option 0 was chosen.")
 		return nil
 	}
-	multiFunc := func(opts []Opt) error {
+	actFunc := func(opts []Opt) error {
 		for _, opt := range opts {
 			fmt.Printf("%s has an id of %d.\n", opt.Text, opt.ID)
 		}
@@ -338,7 +335,8 @@ func Example_errorDuplicate() {
 	}
 	menu := NewMenu("Choose an option.")
 	menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
-	menu.MultipleAction(multiFunc)
+	menu.Action(actFunc)
+	menu.AllowMultiple()
 	menu.Option("Option 0", "0", false, optFunc)
 	menu.Option("Option 1", "1", false, nil)
 	menu.Option("Option 2", "2", false, nil)
@@ -364,10 +362,10 @@ func TestNewMenu(t *testing.T) {
 	for _, c := range newMenuCases {
 		menu := NewMenu(c)
 		assert.Equal(c, menu.question)
-		assert.Nil(menu.defaultFunction)
+		assert.Nil(menu.function)
 		assert.Nil(menu.options)
 		assert.Equal(" ", menu.multiSeparator)
-		assert.Nil(menu.multiFunction)
+		assert.False(menu.allowMultiple)
 		assert.False(menu.loopOnInvalid)
 		assert.False(menu.clear)
 		assert.NotNil(menu.ui)
@@ -426,23 +424,17 @@ func TestAction(t *testing.T) {
 	for _, c := range actionCases {
 		menu.Action(c)
 		if c != nil {
-			assert.NotNil(t, menu.defaultFunction)
+			assert.NotNil(t, menu.function)
 		} else {
-			assert.Nil(t, menu.defaultFunction)
+			assert.Nil(t, menu.function)
 		}
 	}
 }
 
-func TestMultipleAction(t *testing.T) {
+func TestAllowMultiple(t *testing.T) {
 	menu := NewMenu("Testing")
-	for _, c := range multipleActionCases {
-		menu.MultipleAction(c)
-		if c != nil {
-			assert.NotNil(t, menu.multiFunction)
-		} else {
-			assert.Nil(t, menu.multiFunction)
-		}
-	}
+	menu.AllowMultiple()
+	assert.True(t, menu.allowMultiple)
 }
 
 func TestAddColor(t *testing.T) {
@@ -469,11 +461,12 @@ func TestClearInAsk(t *testing.T) {
 		assert.Fail(t, "Should not have called Option 0's function")
 		return nil
 	}
-	actFunc := func(opt Opt) error {
-		assert.Equal(t, 1, opt.ID)
-		assert.Equal(t, "Option 1", opt.Text)
-		assert.Nil(t, opt.function)
-		assert.False(t, opt.isDefault)
+	actFunc := func(opts []Opt) error {
+		assert.Len(t, opts, 1)
+		assert.Equal(t, 1, opts[0].ID)
+		assert.Equal(t, "Option 1", opts[0].Text)
+		assert.Nil(t, opts[0].function)
+		assert.False(t, opts[0].isDefault)
 		return nil
 	}
 	menu := NewMenu("Choose an option.")
@@ -496,8 +489,9 @@ func TestDefaultAction(t *testing.T) {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
-	actFunc := func(opt Opt) error {
-		assert.Equal(t, -1, opt.ID)
+	actFunc := func(opts []Opt) error {
+		assert.Len(t, opts, 1)
+		assert.Equal(t, -1, opts[0].ID)
 		return nil
 	}
 	menu := NewMenu("Choose an option.")
@@ -520,11 +514,12 @@ func TestDefaultActionWithDefaultOption(t *testing.T) {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
-	actFunc := func(opt Opt) error {
-		assert.Equal(t, 1, opt.ID)
-		assert.Equal(t, "Option 1", opt.Text)
-		assert.Nil(t, opt.function)
-		assert.True(t, opt.isDefault)
+	actFunc := func(opts []Opt) error {
+		assert.Len(t, opts, 1)
+		assert.Equal(t, 1, opts[0].ID)
+		assert.Equal(t, "Option 1", opts[0].Text)
+		assert.Nil(t, opts[0].function)
+		assert.True(t, opts[0].isDefault)
 		return nil
 	}
 	menu := NewMenu("Choose an option.")
@@ -545,7 +540,7 @@ func TestOptionsFunction(t *testing.T) {
 	optFunc := func(option Opt) error {
 		return nil
 	}
-	actFunc := func(opt Opt) error {
+	actFunc := func(opts []Opt) error {
 		assert.Fail(t, "Should not have called the menu's default function")
 		return nil
 	}
@@ -568,7 +563,7 @@ func TestWlogAskErr(t *testing.T) {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
-	actFunc := func(opt Opt) error {
+	actFunc := func(opts []Opt) error {
 		assert.Fail(t, "Should not have called the menu's default function")
 		return nil
 	}
@@ -593,7 +588,7 @@ func TestLetterForResponse(t *testing.T) {
 		assert.Fail(t, "Should not have called option 0's function")
 		return nil
 	}
-	actFunc := func(opt Opt) error {
+	actFunc := func(opts []Opt) error {
 		assert.Fail(t, "Should not have called the menu's default function")
 		return nil
 	}
@@ -620,7 +615,6 @@ func TestActionError(t *testing.T) {
 		menu := NewMenu("Choose an option.")
 		menu.ChangeReaderWriter(reader, stdout, stdout)
 		menu.Action(c.defFunction)
-		menu.MultipleAction(c.multiFunction)
 		menu.Option("Option 0", "0", c.singDef, c.optFunction)
 		menu.Option("Option 1", "1", false, nil)
 		menu.Option("Option 2", "2", c.multiDef, nil)
@@ -684,11 +678,7 @@ func TestTrim(t *testing.T) {
 		menu := NewMenu("Testing")
 		menu.ChangeReaderWriter(reader, stdOut, stdOut)
 		menu.SetSeparator(c.del)
-		menu.Action(func(opt Opt) error {
-			fmt.Fprintf(actOut, "%s\r\n", opt.Text)
-			return nil
-		})
-		menu.MultipleAction(func(opts []Opt) error {
+		menu.Action(func(opts []Opt) error {
 			var actual []string
 			for _, opt := range opts {
 				actual = append(actual, opt.Text)
@@ -696,6 +686,7 @@ func TestTrim(t *testing.T) {
 			fmt.Fprintf(actOut, "%s\r\n", strings.Join(actual, " "))
 			return nil
 		})
+		menu.AllowMultiple()
 		menu.Option("0", nil, false, nil)
 		menu.Option("1", nil, false, nil)
 		err := menu.Run()
