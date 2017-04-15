@@ -110,7 +110,7 @@ This will remove any options previously added options and hide the ones used for
 ## V3+ - Release
 Allows the user to pass anything for the value so it can be retrieved later in the function. The following is to show case the power of this.
 
-> The following was written in V3 but the concept holds for v4. V4 just changed `actFunc` to be `func([]wmenu.Opt)` instead.
+> The following was written in V3 but the concept holds for V4. V4 just changed `actFunc` to be `func([]wmenu.Opt) error` instead.
 
 ```go
 type NameEntity struct {
