@@ -56,7 +56,7 @@ var errorCases = []struct {
 }{
 	{"0\r\n", func(option Opt) error { return errors.New("Oops") }, nil, "Oops", false, false},
 	{"0\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
-	{"0 1\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
+	{"0 1\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Too many responses", false, false},
 	{"\r\n", func(option Opt) error { return errors.New("Oops") }, nil, "Oops", true, false},
 	{"\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", true, false},
 	{"\r\n", nil, func(opts []Opt) error { return errors.New("Oops") }, "Oops", false, false},
@@ -615,6 +615,9 @@ func TestActionError(t *testing.T) {
 		menu := NewMenu("Choose an option.")
 		menu.ChangeReaderWriter(reader, stdout, stdout)
 		menu.Action(c.defFunction)
+		if c.multiDef {
+			menu.AllowMultiple()
+		}
 		menu.Option("Option 0", "0", c.singDef, c.optFunction)
 		menu.Option("Option 1", "1", false, nil)
 		menu.Option("Option 2", "2", c.multiDef, nil)
