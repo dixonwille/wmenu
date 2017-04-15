@@ -1,9 +1,3 @@
 language: go
 go:
   - tip
-before_install:
-  - go get github.com/kardianos/govendor
-install:
-  - go get -v -t -d github.com/dixonwille/wmenu
-  - govendor sync
-  - govendor list
