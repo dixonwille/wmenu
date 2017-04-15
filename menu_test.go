@@ -9,9 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dixonwille/wlog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	wlog "gopkg.in/dixonwille/wlog.v2"
 )
 
 var newMenuCases = []string{"Testing this menu.", "", "!@#$%^&*()"}
