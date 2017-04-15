@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dixonwille/wlog"
+	wlog "gopkg.in/dixonwille/wlog.v2"
 )
 
 const (
