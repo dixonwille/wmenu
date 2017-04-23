@@ -6,6 +6,8 @@ concurrency by default. wmenu allows you to change the color of the different
 parts of the menu. This package also creates it's own error structure so you can
 type assert if you need to. wmenu will validate all responses before calling any function. It will also figure out which function should be called so you don't have to.
 
+[![Watch example](https://asciinema.org/a/4lv3ash3ubtnsclindvzdf320.png)](https://asciinema.org/a/4lv3ash3ubtnsclindvzdf320)
+
 ## Import
 
 I try and keep up with my tags. To use the version and stable it is recommended to use `govendor` or another vendoring tool that allows you to build your project for specific tags.
