@@ -1,4 +1,4 @@
-# WMenu[![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=master)](https://travis-ci.org/dixonwille/wmenu) [![Coverage Status](https://coveralls.io/repos/github/dixonwille/wmenu/badge.svg?branch=master)](https://coveralls.io/github/dixonwille/wmenu?branch=master)
+# WMenu[![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=master)](https://travis-ci.org/dixonwille/wmenu) [![codecov](https://codecov.io/gh/dixonwille/wmenu/branch/master/graph/badge.svg)](https://codecov.io/gh/dixonwille/wmenu)
 
 Package wmenu creates menus for cli programs. It uses wlog for it's interface
 with the command line. It uses os.Stdin, os.Stdout, and os.Stderr with
