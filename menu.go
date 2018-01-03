@@ -15,12 +15,18 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mattn/go-isatty"
 	wlog "gopkg.in/dixonwille/wlog.v2"
 )
 
 const (
 	y = iota
 	n
+)
+
+var (
+	NoColor = os.Getenv("TERM") == "dumb" ||
+		(!isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd()))
 )
 
 //Menu is used to display options to a user.
@@ -69,7 +75,9 @@ func NewMenu(question string) *Menu {
 //errorColor changes the color of the question.
 //Use wlog.None if you do not want to change the color.
 func (m *Menu) AddColor(optionColor, questionColor, responseColor, errorColor wlog.Color) {
-	m.ui = wlog.AddColor(questionColor, errorColor, wlog.None, wlog.None, optionColor, responseColor, wlog.None, wlog.None, wlog.None, m.ui)
+	if !NoColor {
+		m.ui = wlog.AddColor(questionColor, errorColor, wlog.None, wlog.None, optionColor, responseColor, wlog.None, wlog.None, wlog.None, m.ui)
+	}
 }
 
 //ClearOnMenuRun will clear the screen when a menu is ran.
