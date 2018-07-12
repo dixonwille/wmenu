@@ -71,6 +71,7 @@ menu.Option("Pizza", nil, true, nil)
 menu.Option("Ice Cream", nil, false, nil)
 menu.Option("Tacos", nil, false, func(opt wmenu.Opt) error {
   fmt.Printf("Tacos are great")
+  return nil
 })
 err := menu.Run()
 if err != nil{
