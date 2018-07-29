@@ -19,13 +19,18 @@ import (
 	wlog "gopkg.in/dixonwille/wlog.v2"
 )
 
+//DefaultYN is used to specify what the default answer is to a yes/no question.
+type DefaultYN int
+
 const (
-	y = iota
-	n
+	//DefY defaults yes/no question to use yes.
+	DefY DefaultYN = iota + 1
+	//DefN defaults yes/no question to use no.
+	DefN
 )
 
 var (
-	NoColor = os.Getenv("TERM") == "dumb" ||
+	noColor = os.Getenv("TERM") == "dumb" ||
 		(!isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd()))
 )
 
@@ -43,7 +48,7 @@ type Menu struct {
 	tries          int
 	defIcon        string
 	isYN           bool
-	ynDef          int
+	ynDef          DefaultYN
 }
 
 //NewMenu creates a menu with a wlog.UI as the writer.
@@ -75,7 +80,7 @@ func NewMenu(question string) *Menu {
 //errorColor changes the color of the question.
 //Use wlog.None if you do not want to change the color.
 func (m *Menu) AddColor(optionColor, questionColor, responseColor, errorColor wlog.Color) {
-	if !NoColor {
+	if !noColor {
 		m.ui = wlog.AddColor(questionColor, errorColor, wlog.None, wlog.None, optionColor, responseColor, wlog.None, wlog.None, wlog.None, m.ui)
 	}
 }
@@ -113,10 +118,9 @@ func (m *Menu) SetDefaultIcon(icon string) {
 //IsYesNo sets the menu to a yes/no state.
 //Does not show options but does ask question.
 //Will also parse the answer to allow for all variants of yes/no (IE Y yes No ...)
-//Specify the default value using def. 0 is for yes and 1 is for no.
 //Both will call the Action function you specified.
-// Opt{ID: 0, Text: "y"} for yes and Opt{ID: 1, Text: "n"} for no will be passed to the function.
-func (m *Menu) IsYesNo(def int) {
+// Opt{ID: 1, Text: "y"} for yes and Opt{ID: 2, Text: "n"} for no will be passed to the function.
+func (m *Menu) IsYesNo(def DefaultYN) {
 	m.isYN = true
 	m.ynDef = def
 }
@@ -128,7 +132,7 @@ func (m *Menu) IsYesNo(def int) {
 //function is what is called when only this option is selected.
 //If function is nil then it will default to the menu's Action.
 func (m *Menu) Option(title string, value interface{}, isDefault bool, function func(Opt) error) {
-	option := newOption(len(m.options), title, value, isDefault, function)
+	option := newOption(len(m.options)+1, title, value, isDefault, function)
 	m.options = append(m.options, *option)
 }
 
@@ -229,20 +233,20 @@ func (m *Menu) print() {
 	} else {
 		//TODO Allow user to specify what to use as value for YN options
 		m.options = []Opt{}
-		m.Option("y", "yes", m.ynDef == y, nil)
-		m.Option("n", "no", m.ynDef == n, nil)
+		m.Option("y", "yes", m.ynDef == DefY, nil)
+		m.Option("n", "no", m.ynDef == DefN, nil)
 	}
 }
 
 func (m *Menu) ask() ([]Opt, error) {
 	if m.isYN {
-		if m.ynDef == y {
+		if m.ynDef == DefY {
 			m.question += " (Y/n)"
 		} else {
 			m.question += " (y/N)"
 		}
 	}
-	trim := ""
+	var trim string
 	if m.multiSeparator == " " {
 		trim = m.multiSeparator
 	} else {
@@ -284,7 +288,7 @@ func (m *Menu) ask() ([]Opt, error) {
 	//Parse responses and return them as options
 	var finalOptions []Opt
 	for _, response := range responses {
-		finalOptions = append(finalOptions, m.options[response])
+		finalOptions = append(finalOptions, m.options[response-1])
 	}
 
 	return finalOptions, nil
@@ -323,9 +327,9 @@ func (m *Menu) ynResParse(res string) ([]int, error) {
 		return nil, newMenuError(ErrInvalid, res, m.triesLeft())
 	}
 	if strings.ToLower(matches[1]) == "y" {
-		return []int{y}, nil
+		return []int{int(DefY)}, nil
 	}
-	return []int{n}, nil
+	return []int{int(DefN)}, nil
 }
 
 //Check if response is in the range of options
@@ -333,7 +337,7 @@ func (m *Menu) ynResParse(res string) ([]int, error) {
 func (m *Menu) validateResponses(responses []int) error {
 	var tmp []int
 	for _, response := range responses {
-		if response < 0 || len(m.options)-1 < response {
+		if response < 1 || len(m.options) < response {
 			return newMenuError(ErrInvalid, strconv.Itoa(response), m.triesLeft())
 		}
 

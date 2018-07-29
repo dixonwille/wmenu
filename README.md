@@ -82,9 +82,9 @@ if err != nil{
 The output would look like this:
 
 ```
-0) *Pizza
-1) Ice Cream
-2) Tacos
+1) *Pizza
+2) Ice Cream
+3) Tacos
 What is your favorite food?
 ```
 
@@ -122,7 +122,7 @@ type NameEntity struct {
 }
 
 optFunc := func(opt wmenu.Opt) error {
-  fmt.Println("Option 0 was chosen.")
+  fmt.Println("Option 1 was chosen.")
   return nil
 }
 actFunc := func(opt wmenu.Opt) error {
@@ -137,9 +137,9 @@ actFunc := func(opt wmenu.Opt) error {
 menu := NewMenu("Choose an option.")
 menu.ChangeReaderWriter(reader, os.Stdout, os.Stderr)
 menu.Action(actFunc)
-menu.Option("Option 0", NameEntity{"Bill", "Bob"}, true, optFunc)
-menu.Option("Option 1", NameEntity{"John", "Doe"}, false, nil)
-menu.Option("Option 2", NameEntity{"Jane", "Doe"}, false, nil)
+menu.Option("Option 1", NameEntity{"Bill", "Bob"}, true, optFunc)
+menu.Option("Option 2", NameEntity{"John", "Doe"}, false, nil)
+menu.Option("Option 3", NameEntity{"Jane", "Doe"}, false, nil)
 err := menu.Run()
 if err != nil {
   log.Fatal(err)
@@ -150,9 +150,9 @@ The immediate output would be:
 
 ```
 Output:
-0) *Option 0
-1) Option 1
+1) *Option 1
 2) Option 2
+3) Option 3
 Choose an option.
 ```
 
