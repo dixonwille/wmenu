@@ -56,7 +56,7 @@ func toppingsMenu(favorite menuItem) *wmenu.Menu {
 	if favorite == pizza {
 		menu.Option("Meat", nil, true, nil)
 		menu.Option("Cheese", nil, false, nil)
-		menu.Option("Vegitables", nil, false, nil)
+		menu.Option("Vegetables", nil, false, nil)
 	}
 	if favorite == iceCream {
 		menu.Option("Fruit", nil, true, nil)
