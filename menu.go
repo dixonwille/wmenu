@@ -49,6 +49,7 @@ type Menu struct {
 	defIcon        string
 	isYN           bool
 	ynDef          DefaultYN
+	padOptionID    bool
 }
 
 //NewMenu creates a menu with a wlog.UI as the writer.
@@ -223,12 +224,17 @@ func (m *Menu) callAppropriateNoOptions() (err error) {
 //hide options when this is a yes or no
 func (m *Menu) print() {
 	if !m.isYN {
+		outputFormat := "%d) %s%s"
+		if m.padOptionID {
+			padding := len(strconv.Itoa(len(m.options)))
+			outputFormat = "%" + strconv.Itoa(padding) + "d) %s%s"
+		}
 		for _, opt := range m.options {
 			icon := m.defIcon
 			if !opt.isDefault {
 				icon = ""
 			}
-			m.ui.Output(fmt.Sprintf("%d) %s%s", opt.ID, icon, opt.Text))
+			m.ui.Output(fmt.Sprintf(outputFormat, opt.ID, icon, opt.Text))
 		}
 	} else {
 		//TODO Allow user to specify what to use as value for YN options
