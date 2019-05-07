@@ -672,6 +672,30 @@ func TestYesNo(t *testing.T) {
 	}
 }
 
+func TestIDPadding(t *testing.T) {
+	stdOut := initTest()
+	reader := strings.NewReader("2")
+	menu := NewMenu("Choose a fruit")
+	menu.ChangeReaderWriter(reader, stdOut, stdOut)
+	menu.PadOptionID()
+	menu.Option("Apple", "", false, nil)
+	menu.Option("Banana", "", false, nil)
+	menu.Option("Cherry", "", false, nil)
+	menu.Option("Dragon Fruit", "", false, nil)
+	menu.Option("Elderberry", "", false, nil)
+	menu.Option("Fig", "", false, nil)
+	menu.Option("Grapes", "", false, nil)
+	menu.Option("Honeydew Melon", "", false, nil)
+	menu.Option("Indian Prune", "", false, nil)
+	menu.Option("Jackfruit", "", false, nil)
+	menu.Option("Kiwi", "", false, nil)
+	_ = menu.Run()
+
+	lines := strings.Split(stdOut.String(), "\n")
+	assert.Equal(t, " 1) Apple", lines[0])
+	assert.Equal(t, "11) Kiwi", lines[10])
+}
+
 func TestTrim(t *testing.T) {
 	for _, c := range trimCases {
 		stdOut := initTest()

@@ -86,6 +86,11 @@ func (m *Menu) AddColor(optionColor, questionColor, responseColor, errorColor wl
 	}
 }
 
+// PadOptionID will pad the option IDs when printing, so they all right-align.
+func (m *Menu) PadOptionID() {
+	m.padOptionID = true
+}
+
 //ClearOnMenuRun will clear the screen when a menu is ran.
 //This is checked when LoopOnInvalid is activated.
 //Meaning if an error occurred then it will clear the screen before asking again.
