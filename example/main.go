@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dixonwille/wmenu"
+	"github.com/dixonwille/wmenu/v5"
 )
 
 type menuItem int

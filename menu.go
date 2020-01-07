@@ -15,8 +15,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dixonwille/wlog/v3"
 	"github.com/mattn/go-isatty"
-	wlog "gopkg.in/dixonwille/wlog.v2"
 )
 
 //DefaultYN is used to specify what the default answer is to a yes/no question.
