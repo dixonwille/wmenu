@@ -1,6 +1,6 @@
 # WMenu[![Build Status](https://travis-ci.org/dixonwille/wmenu.svg?branch=master)](https://travis-ci.org/dixonwille/wmenu) [![codecov](https://codecov.io/gh/dixonwille/wmenu/branch/master/graph/badge.svg)](https://codecov.io/gh/dixonwille/wmenu)
 
-Package wmenu creates menus for cli programs. It uses wlog for it's interface
+Package wmenu creates menus for cli programs. It uses wlog for its interface
 with the command line. It uses os.Stdin, os.Stdout, and os.Stderr with
 concurrency by default. wmenu allows you to change the color of the different
 parts of the menu. This package also creates it's own error structure so you can
