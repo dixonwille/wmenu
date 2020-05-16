@@ -4,16 +4,16 @@ import "errors"
 
 var (
 	//ErrInvalid is returned if a response from user was an invalid option
-	ErrInvalid = errors.New("Invalid response")
+	ErrInvalid = errors.New("invalid response")
 
 	//ErrTooMany is returned if multiSelect is false and a user tries to select multiple options
-	ErrTooMany = errors.New("Too many responses")
+	ErrTooMany = errors.New("too many responses")
 
 	//ErrNoResponse is returned if there were no responses and no action to call
-	ErrNoResponse = errors.New("No response")
+	ErrNoResponse = errors.New("no response")
 
 	//ErrDuplicate is returned is a user selects an option twice
-	ErrDuplicate = errors.New("Duplicated response")
+	ErrDuplicate = errors.New("duplicated response")
 )
 
 //MenuError records menu errors
