@@ -50,6 +50,7 @@ type Menu struct {
 	isYN           bool
 	ynDef          DefaultYN
 	padOptionID    bool
+	initialIndex   int
 }
 
 //NewMenu creates a menu with a wlog.UI as the writer.
@@ -72,6 +73,7 @@ func NewMenu(question string) *Menu {
 		defIcon:        "*",
 		isYN:           false,
 		ynDef:          0,
+		initialIndex:   1,
 	}
 }
 
@@ -131,6 +133,11 @@ func (m *Menu) IsYesNo(def DefaultYN) {
 	m.ynDef = def
 }
 
+// InitialIndex sets the starting number for the displayed list. It defaults to 1.
+func (m *Menu) InitialIndex(index int) {
+	m.initialIndex = index
+}
+
 //Option adds an option to the menu for the user to select from.
 //value is an empty interface that can be used to pass anything through to the function.
 //title is the string the user will select
@@ -138,7 +145,7 @@ func (m *Menu) IsYesNo(def DefaultYN) {
 //function is what is called when only this option is selected.
 //If function is nil then it will default to the menu's Action.
 func (m *Menu) Option(title string, value interface{}, isDefault bool, function func(Opt) error) {
-	option := newOption(len(m.options)+1, title, value, isDefault, function)
+	option := newOption(len(m.options), title, value, isDefault, function)
 	m.options = append(m.options, *option)
 }
 
@@ -239,7 +246,7 @@ func (m *Menu) print() {
 			if !opt.isDefault {
 				icon = ""
 			}
-			m.ui.Output(fmt.Sprintf(outputFormat, opt.ID, icon, opt.Text))
+			m.ui.Output(fmt.Sprintf(outputFormat, opt.ID+m.initialIndex, icon, opt.Text))
 		}
 	} else {
 		//TODO Allow user to specify what to use as value for YN options
@@ -299,7 +306,7 @@ func (m *Menu) ask() ([]Opt, error) {
 	//Parse responses and return them as options
 	var finalOptions []Opt
 	for _, response := range responses {
-		finalOptions = append(finalOptions, m.options[response-1])
+		finalOptions = append(finalOptions, m.options[response-m.initialIndex])
 	}
 
 	return finalOptions, nil
@@ -348,7 +355,8 @@ func (m *Menu) ynResParse(res string) ([]int, error) {
 func (m *Menu) validateResponses(responses []int) error {
 	var tmp []int
 	for _, response := range responses {
-		if response < 1 || len(m.options) < response {
+		realIndex := response - m.initialIndex
+		if realIndex < 0 || len(m.options) <= realIndex {
 			return newMenuError(ErrInvalid, strconv.Itoa(response), m.triesLeft())
 		}
 
