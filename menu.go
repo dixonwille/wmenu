@@ -1,10 +1,10 @@
-//Package wmenu creates menus for cli programs.
-//It uses wlog for it's interface with the command line.
-//It uses os.Stdin, os.Stdout, and os.Stderr with concurrency by default.
-//wmenu allows you to change the color of the different parts of the menu.
-//This package also creates it's own error structure so you can type assert if you need to.
-//wmenu will validate all responses before calling any function.
-//It will also figure out which function should be called so you don't have to.
+// Package wmenu creates menus for cli programs.
+// It uses wlog for it's interface with the command line.
+// It uses os.Stdin, os.Stdout, and os.Stderr with concurrency by default.
+// wmenu allows you to change the color of the different parts of the menu.
+// This package also creates it's own error structure so you can type assert if you need to.
+// wmenu will validate all responses before calling any function.
+// It will also figure out which function should be called so you don't have to.
 package wmenu
 
 import (
@@ -19,7 +19,7 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-//DefaultYN is used to specify what the default answer is to a yes/no question.
+// DefaultYN is used to specify what the default answer is to a yes/no question.
 type DefaultYN int
 
 const (
@@ -34,8 +34,8 @@ var (
 		(!isatty.IsTerminal(os.Stdout.Fd()) && !isatty.IsCygwinTerminal(os.Stdout.Fd()))
 )
 
-//Menu is used to display options to a user.
-//A user can then select options and Menu will validate the response and perform the correct action.
+// Menu is used to display options to a user.
+// A user can then select options and Menu will validate the response and perform the correct action.
 type Menu struct {
 	question       string
 	function       func([]Opt) error
@@ -53,7 +53,7 @@ type Menu struct {
 	initialIndex   int
 }
 
-//NewMenu creates a menu with a wlog.UI as the writer.
+// NewMenu creates a menu with a wlog.UI as the writer.
 func NewMenu(question string) *Menu {
 	//Create a default ui to use for menu
 	var ui wlog.UI
@@ -77,11 +77,11 @@ func NewMenu(question string) *Menu {
 	}
 }
 
-//AddColor will change the color of the menu items.
-//optionColor changes the color of the options.
-//questionColor changes the color of the questions.
-//errorColor changes the color of the question.
-//Use wlog.None if you do not want to change the color.
+// AddColor will change the color of the menu items.
+// optionColor changes the color of the options.
+// questionColor changes the color of the questions.
+// errorColor changes the color of the question.
+// Use wlog.None if you do not want to change the color.
 func (m *Menu) AddColor(optionColor, questionColor, responseColor, errorColor wlog.Color) {
 	if !noColor {
 		m.ui = wlog.AddColor(questionColor, errorColor, wlog.None, wlog.None, optionColor, responseColor, wlog.None, wlog.None, wlog.None, m.ui)
@@ -93,40 +93,40 @@ func (m *Menu) PadOptionID() {
 	m.padOptionID = true
 }
 
-//ClearOnMenuRun will clear the screen when a menu is ran.
-//This is checked when LoopOnInvalid is activated.
-//Meaning if an error occurred then it will clear the screen before asking again.
+// ClearOnMenuRun will clear the screen when a menu is ran.
+// This is checked when LoopOnInvalid is activated.
+// Meaning if an error occurred then it will clear the screen before asking again.
 func (m *Menu) ClearOnMenuRun() {
 	m.clear = true
 }
 
-//SetSeparator sets the separator to use when multiple options are valid responses.
-//Default value is a space.
+// SetSeparator sets the separator to use when multiple options are valid responses.
+// Default value is a space.
 func (m *Menu) SetSeparator(sep string) {
 	m.multiSeparator = sep
 }
 
-//SetTries sets the number of tries on the loop before failing out.
-//Default is 3.
-//Negative values act like 0.
+// SetTries sets the number of tries on the loop before failing out.
+// Default is 3.
+// Negative values act like 0.
 func (m *Menu) SetTries(i int) {
 	m.tries = i
 }
 
-//LoopOnInvalid is used if an invalid option was given then it will prompt the user again.
+// LoopOnInvalid is used if an invalid option was given then it will prompt the user again.
 func (m *Menu) LoopOnInvalid() {
 	m.loopOnInvalid = true
 }
 
-//SetDefaultIcon sets the icon used to identify which options will be selected by default
+// SetDefaultIcon sets the icon used to identify which options will be selected by default
 func (m *Menu) SetDefaultIcon(icon string) {
 	m.defIcon = icon
 }
 
-//IsYesNo sets the menu to a yes/no state.
-//Does not show options but does ask question.
-//Will also parse the answer to allow for all variants of yes/no (IE Y yes No ...)
-//Both will call the Action function you specified.
+// IsYesNo sets the menu to a yes/no state.
+// Does not show options but does ask question.
+// Will also parse the answer to allow for all variants of yes/no (IE Y yes No ...)
+// Both will call the Action function you specified.
 // Opt{ID: 1, Text: "y"} for yes and Opt{ID: 2, Text: "n"} for no will be passed to the function.
 func (m *Menu) IsYesNo(def DefaultYN) {
 	m.isYN = true
@@ -138,44 +138,44 @@ func (m *Menu) InitialIndex(index int) {
 	m.initialIndex = index
 }
 
-//Option adds an option to the menu for the user to select from.
-//value is an empty interface that can be used to pass anything through to the function.
-//title is the string the user will select
-//isDefault is whether this option is a default option (IE when no options are selected).
-//function is what is called when only this option is selected.
-//If function is nil then it will default to the menu's Action.
+// Option adds an option to the menu for the user to select from.
+// value is an empty interface that can be used to pass anything through to the function.
+// title is the string the user will select
+// isDefault is whether this option is a default option (IE when no options are selected).
+// function is what is called when only this option is selected.
+// If function is nil then it will default to the menu's Action.
 func (m *Menu) Option(title string, value interface{}, isDefault bool, function func(Opt) error) {
 	option := newOption(len(m.options), title, value, isDefault, function)
 	m.options = append(m.options, *option)
 }
 
-//Action adds a default action to use in certain scenarios.
-//If the selected option (by default or user selected) does not have a function applied to it this will be called.
-//If there are no default options and no option was selected this will be called with an option that has an ID of -1.
+// Action adds a default action to use in certain scenarios.
+// If the selected option (by default or user selected) does not have a function applied to it this will be called.
+// If there are no default options and no option was selected this will be called with an option that has an ID of -1.
 func (m *Menu) Action(function func([]Opt) error) {
 	m.function = function
 }
 
-//AllowMultiple will tell the menu to allow multiple selections.
-//The menu will fail if this is not called and mulple selections were selected.
+// AllowMultiple will tell the menu to allow multiple selections.
+// The menu will fail if this is not called and mulple selections were selected.
 func (m *Menu) AllowMultiple() {
 	m.allowMultiple = true
 }
 
-//ChangeReaderWriter changes where the menu listens and writes to.
-//reader is where user input is collected.
-//writer and errorWriter is where the menu should write to.
+// ChangeReaderWriter changes where the menu listens and writes to.
+// reader is where user input is collected.
+// writer and errorWriter is where the menu should write to.
 func (m *Menu) ChangeReaderWriter(reader io.Reader, writer, errorWriter io.Writer) {
 	var ui wlog.UI
 	ui = wlog.New(reader, writer, errorWriter)
 	m.ui = ui
 }
 
-//Run is used to execute the menu.
-//It will print to options and question to the screen.
-//It will only clear the screen if ClearOnMenuRun is activated.
-//This will validate all responses.
-//Errors are of type MenuError.
+// Run is used to execute the menu.
+// It will print to options and question to the screen.
+// It will only clear the screen if ClearOnMenuRun is activated.
+// This will validate all responses.
+// Errors are of type MenuError.
 func (m *Menu) Run() error {
 	if m.clear {
 		Clear()
@@ -233,7 +233,7 @@ func (m *Menu) callAppropriateNoOptions() (err error) {
 	return m.function(options)
 }
 
-//hide options when this is a yes or no
+// hide options when this is a yes or no
 func (m *Menu) print() {
 	if !m.isYN {
 		outputFormat := "%d) %s%s"
@@ -312,7 +312,7 @@ func (m *Menu) ask() ([]Opt, error) {
 	return finalOptions, nil
 }
 
-//Converts the response string to a slice of ints, also validates along the way.
+// Converts the response string to a slice of ints, also validates along the way.
 func (m *Menu) resToInt(res string) ([]int, error) {
 	resStrings := strings.Split(res, m.multiSeparator)
 	//Check if we don't want multiple responses
@@ -350,8 +350,8 @@ func (m *Menu) ynResParse(res string) ([]int, error) {
 	return []int{int(DefN)}, nil
 }
 
-//Check if response is in the range of options
-//If it is make sure it is not duplicated
+// Check if response is in the range of options
+// If it is make sure it is not duplicated
 func (m *Menu) validateResponses(responses []int) error {
 	var tmp []int
 	for _, response := range responses {
@@ -369,7 +369,7 @@ func (m *Menu) validateResponses(responses []int) error {
 	return nil
 }
 
-//Simply checks if number exists in the slice
+// Simply checks if number exists in the slice
 func exist(slice []int, number int) bool {
 	for _, s := range slice {
 		if number == s {
@@ -379,7 +379,7 @@ func exist(slice []int, number int) bool {
 	return false
 }
 
-//gets a list of default options
+// gets a list of default options
 func (m *Menu) getDefault() []Opt {
 	var opt []Opt
 	for _, o := range m.options {
@@ -390,8 +390,8 @@ func (m *Menu) getDefault() []Opt {
 	return opt
 }
 
-//make sure that there is an action available to be called in certain cases
-//returns false if it chould not find an action for the number options available
+// make sure that there is an action available to be called in certain cases
+// returns false if it chould not find an action for the number options available
 func (m *Menu) validOptAndFunc(opt []Opt) bool {
 	if m.function == nil {
 		if len(opt) == 1 && opt[0].function != nil {

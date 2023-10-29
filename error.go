@@ -16,14 +16,14 @@ var (
 	ErrDuplicate = errors.New("duplicated response")
 )
 
-//MenuError records menu errors
+// MenuError records menu errors
 type MenuError struct {
 	Err       error
 	Res       string
 	TriesLeft int
 }
 
-//Error prints the error in an easy to read string.
+// Error prints the error in an easy to read string.
 func (e *MenuError) Error() string {
 	if e.Res != "" {
 		return e.Err.Error() + ": " + e.Res
@@ -39,7 +39,7 @@ func newMenuError(err error, res string, tries int) *MenuError {
 	}
 }
 
-//IsInvalidErr checks to see if err is of type invalid error returned by menu.
+// IsInvalidErr checks to see if err is of type invalid error returned by menu.
 func IsInvalidErr(err error) bool {
 	e, ok := err.(*MenuError)
 	if ok && e.Err == ErrInvalid {
@@ -48,7 +48,7 @@ func IsInvalidErr(err error) bool {
 	return false
 }
 
-//IsNoResponseErr checks to see if err is of type no response returned by menu.
+// IsNoResponseErr checks to see if err is of type no response returned by menu.
 func IsNoResponseErr(err error) bool {
 	e, ok := err.(*MenuError)
 	if ok && e.Err == ErrNoResponse {
@@ -57,7 +57,7 @@ func IsNoResponseErr(err error) bool {
 	return false
 }
 
-//IsTooManyErr checks to see if err is of type too many returned by menu.
+// IsTooManyErr checks to see if err is of type too many returned by menu.
 func IsTooManyErr(err error) bool {
 	e, ok := err.(*MenuError)
 	if ok && e.Err == ErrTooMany {
@@ -66,7 +66,7 @@ func IsTooManyErr(err error) bool {
 	return false
 }
 
-//IsDuplicateErr checks to see if err is of type duplicate returned by menu.
+// IsDuplicateErr checks to see if err is of type duplicate returned by menu.
 func IsDuplicateErr(err error) bool {
 	e, ok := err.(*MenuError)
 	if ok && e.Err == ErrDuplicate {
@@ -75,8 +75,8 @@ func IsDuplicateErr(err error) bool {
 	return false
 }
 
-//IsMenuErr checks to see if it is a menu err.
-//This is a general check not a specific one.
+// IsMenuErr checks to see if it is a menu err.
+// This is a general check not a specific one.
 func IsMenuErr(err error) bool {
 	_, ok := err.(*MenuError)
 	if ok {

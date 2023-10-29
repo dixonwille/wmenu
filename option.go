@@ -1,7 +1,7 @@
 package wmenu
 
-//Opt is what Menu uses to display options to screen.
-//Also holds information on what should run and if it is a default option
+// Opt is what Menu uses to display options to screen.
+// Also holds information on what should run and if it is a default option
 type Opt struct {
 	ID        int
 	Text      string
