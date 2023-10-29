@@ -166,8 +166,7 @@ func (m *Menu) AllowMultiple() {
 //reader is where user input is collected.
 //writer and errorWriter is where the menu should write to.
 func (m *Menu) ChangeReaderWriter(reader io.Reader, writer, errorWriter io.Writer) {
-	var ui wlog.UI
-	ui = wlog.New(reader, writer, errorWriter)
+	ui := wlog.New(reader, writer, errorWriter)
 	m.ui = ui
 }
 
@@ -339,7 +338,7 @@ func (m *Menu) ynResParse(res string) ([]int, error) {
 	if len(resStrings) > 1 {
 		return nil, newMenuError(ErrTooMany, "", m.triesLeft())
 	}
-	re := regexp.MustCompile("^\\s*(?:([Yy])(?:es|ES)?|([Nn])(?:o|O)?)\\s*$")
+	re := regexp.MustCompile(`^\s*(?:([Yy])(?:es|ES)?|([Nn])(?:o|O)?)\s*$`)
 	matches := re.FindStringSubmatch(res)
 	if len(matches) < 2 {
 		return nil, newMenuError(ErrInvalid, res, m.triesLeft())
