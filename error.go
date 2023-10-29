@@ -79,8 +79,5 @@ func IsDuplicateErr(err error) bool {
 //This is a general check not a specific one.
 func IsMenuErr(err error) bool {
 	_, ok := err.(*MenuError)
-	if ok {
-		return true
-	}
-	return false
+	return ok
 }
