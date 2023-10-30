@@ -1,4 +1,4 @@
-//package main is to show how multiple menus can be used with eachother
+// package main is to show how multiple menus can be used with each other
 package main
 
 import (
@@ -36,7 +36,7 @@ func mainMenu() *wmenu.Menu {
 	menu := wmenu.NewMenu("What is your favorite food?")
 	menu.Option(menuItemStrings[pizza], pizza, true, nil)
 	menu.Option(menuItemStrings[iceCream], iceCream, false, nil)
-	menu.Option(menuItemStrings[tacos], tacos, false, func(opt wmenu.Opt) error {
+	menu.Option(menuItemStrings[tacos], tacos, false, func(_ wmenu.Opt) error {
 		fmt.Printf("Tacos are great!\n")
 		return nil
 	})
@@ -53,6 +53,7 @@ func mainMenu() *wmenu.Menu {
 
 func toppingsMenu(favorite menuItem) *wmenu.Menu {
 	menu := wmenu.NewMenu(fmt.Sprintf("What is your favorite topping for %s?", menuItemStrings[favorite]))
+	menu.ClearOnMenuRun()
 	if favorite == pizza {
 		menu.Option("Meat", nil, true, nil)
 		menu.Option("Cheese", nil, false, nil)

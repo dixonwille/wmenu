@@ -1,6 +1,7 @@
 package wmenu
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
@@ -11,24 +12,15 @@ var clear map[string]func()
 func init() {
 	clear = make(map[string]func())
 	clear["linux"] = func() {
-		cmd := exec.Command("clear")
-		cmd.Stdout = os.Stdout
-		err := cmd.Run()
-		if err != nil {
-			panic(err)
-		}
+		fmt.Print("\033[2J\033[H")
 	}
 	clear["darwin"] = func() {
-		cmd := exec.Command("clear")
-		cmd.Stdout = os.Stdout
-		err := cmd.Run()
-		if err != nil {
-			panic(err)
-		}
+		fmt.Print("\033[2J\033[H")
 	}
 	clear["windows"] = func() {
 		cmd := exec.Command("cmd", "/c", "cls")
 		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 		err := cmd.Run()
 		if err != nil {
 			panic(err)
