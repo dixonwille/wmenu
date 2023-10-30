@@ -8,5 +8,5 @@ require (
 	github.com/golangplus/fmt v0.0.0-20150411045040-2a5d6d7d2995 // indirect
 	github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e // indirect
 	github.com/mattn/go-isatty v0.0.11
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.8.4
 )
