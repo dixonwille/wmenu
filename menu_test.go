@@ -98,6 +98,13 @@ var trimCases = []struct {
 	{"1, 2, \r\n", ",", "1 2\r\n"},
 }
 
+func init() {
+	// Terminal is not set in many CI environments
+	if os.Getenv("TERMINAL") == "" {
+		os.Setenv("TERMINAL", "xterm")
+	}
+}
+
 func Example_optionValue() {
 	type NameEntity struct {
 		FirstName string
