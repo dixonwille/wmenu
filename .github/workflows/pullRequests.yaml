@@ -3,10 +3,10 @@ name: Pull Requests
 on:
   push:
     branches:
-      - v2
+      - v4
   pull_request:
     branches:
-      - v2
+      - v4
 
 permissions:
   contents: read
